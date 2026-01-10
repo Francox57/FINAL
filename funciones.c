@@ -1,31 +1,29 @@
-#include <stdio.h>
 #include "funciones.h"
 
-void mat_copia(int copia[3][3], int i, int j); // Funcion que copia a la matriz referencia en un 3x3
-void nace (int mat[ALTO][ANCHO], int i, int j);//Funcion que nace nuevas celulas
-void muere (int mat[ALTO][ANCHO], int i, int j);//Funcion que mata las anteriores
-void print_mat (int mat[ALTO][ANCHO]);//Funcion para imprimir la matriz
+void mat_copia(bloque copia[3][3], int i, int j); // Funcion que copia a la matriz referencia en un 3x3
+void nace (bloque mat[ALTO][ANCHO], int i, int j);//Funcion que nace nuevas celulas
+void muere (bloque mat[ALTO][ANCHO], int i, int j);//Funcion que mata las anteriores
+void print_mat (bloque mat[ALTO][ANCHO]);//Funcion para imprimir la matriz
 
-
-void llenar_mat (int mat[ALTO][ANCHO]){
+void llenar_mat (bloque mat[ALTO][ANCHO]){
     int i,j;//Valor de fila y columna
     for(i=0;i<ALTO;i++){//Llena la matriz con celulas muertas
         for(j=0;j<ANCHO;j++){
-            mat[i][j] = '*'; 
+            mat[i][j].estado = true; 
         }
     }
 }
 
 
-void nace (int mat[ALTO][ANCHO], int i, int j){                     
-    mat[i][j]= '*';
+void nace (bloque mat[ALTO][ANCHO], int i, int j){                     
+    mat[i][j].estado = false;
 }
 
-void muere (int mat[ALTO][ANCHO], int i, int j){
-    mat[i][j]= ' ';
+void muere (bloque mat[ALTO][ANCHO], int i, int j){
+    mat[i][j].estado = true;
 }
 
-void print_mat (int mat[ALTO][ANCHO]){ //Funcion para imprimir matriz
+void print_mat (bloque mat[ALTO][ANCHO]){ //Funcion para imprimir matriz
     int i,j;//Valor de fila y columna
     int cont = 0;//Inicio un contador que va a tener el valor de los indices en 0
     printf("|^_^|");
@@ -40,7 +38,7 @@ void print_mat (int mat[ALTO][ANCHO]){ //Funcion para imprimir matriz
         printf("%2d |", cont);//Imprime una fila con los valores de las celdas
         cont++;
         for(j=0;j<ANCHO;j++){
-            printf(" %c |", mat[i][j]);//Imprime el caracter de vivo o muerto
+            printf(" %d |", mat[i][j].estado);//Imprime el caracter de vivo o muerto
         }
         putchar('\n');
     }
@@ -56,20 +54,67 @@ void must_init(bool test, const char *descripcion) // Se asegura que todo se ini
     exit(1); // Si no se sale del programa y avisa cual no se inicializo correctamente
 }
 
-void dibujar_all(int dispAlto, int dispAncho,float lado,ALLEGRO_COLOR color,float platx,float platy,float ballx,float bally){ // Dibuja las filas y columnas calculando el offset
-    int i;
-    float anchorect = (float)dispAncho/ANCHO; // ancho variable de los rectangulos
-    float offsety = (dispAlto/3 - lado*ALTO)/2; // Que tanto de Y se desplaza la grilla en caso de que ANCHO > ALTO para evitar formar rectangulos verticales
-    for (i = 0; i <= ANCHO; i++){ // Recorre que tan ancho es la matriz
-        float x = i*(anchorect);
-        al_draw_line(x,offsety, x, offsety+lado*ALTO, color, 0); // dibuja las lineas que forman las columnas
+void dibujar_all(int dispAlto, int dispAncho,float lado,ALLEGRO_COLOR color,bounding_box plat,entities ball, bloque mat[ALTO][ANCHO]){ // Dibuja las filas y columnas calculando el offset
+    int i,j;
+    for (i = 0; i < ALTO; i++){ // Recorre que tan ancho es la matriz
+        for (j = 0; j < ANCHO; j++){
+           
+            if (mat[i][j].estado == true)
+            {
+                al_draw_rectangle(mat[i][j].bounding.ulx,mat[i][j].bounding.uly,mat[i][j].bounding.drx,mat[i][j].bounding.dry,color,1);
+                
+            }
+        }
     }
-    for (i = 0; i <= ALTO; i++){
-        float y = offsety + i*lado;
-        al_draw_line(0,y, dispAncho, y, color, 0);// dibuja las lineas que forman las filas
+
+
+    float radio =((2.5*(float)dispAncho)/255);
+    al_draw_filled_rectangle(plat.ulx, plat.uly, plat.drx, plat.dry, color);
+    al_draw_filled_circle(ball.x,ball.y+2*radio,radio,color);
+    al_draw_rectangle(ball.bounding.ulx,ball.bounding.uly,ball.bounding.drx,ball.bounding.dry,al_map_rgb(255, 92, 194),1);
+    al_draw_rectangle(plat.ulx,plat.uly,plat.drx,plat.dry,al_map_rgb(255, 92, 194),1);
+}
+
+
+
+
+
+
+bounding_box set_bounding(float ulx ,float uly ,float  drx ,float dry){
+    bounding_box box  = {ulx,uly,drx,dry};
+    return box;
+}
+
+
+char collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2){
+
+
+    if(ax1 >= bx2) return 0;
+    if(ax2 <= bx1) return 0;
+    if(ay1 >= by2) return 0;
+    if(ay2 <= by1) return 0;
+
+    
+    float overlapX = (ax2 < bx2 ? ax2 : bx2) - (ax1 > bx1 ? ax1 : bx1); // se fija por donde penetro mas si verticalmente u horizontalmente 
+    float overlapY = (ay2 < by2 ? ay2 : by2) - (ay1 > by1 ? ay1 : by1);
+    if (overlapX < overlapY) // en caso de que sea vertical
+    {
+        return -1;
+    }else if (overlapX > overlapY)
+    {
+         return 1;// caso horizontal
+    }
+    else
+    { 
+        return 2;
     }
     
-    al_draw_filled_rectangle(platx-3*anchorect, dispAlto - (platy-lado), platx+3*anchorect, dispAlto-(platy), color); // el 3 es un coeficiente se podria agregar algo para poder cambiarlo in game
-    al_draw_filled_circle(ballx,dispAlto - (bally+(6*anchorect)/32),(6*anchorect)/32,color);
+    
+
 }
+
+
+
+
+
 
