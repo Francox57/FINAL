@@ -3,10 +3,11 @@
 
 
 int main() {
-    
 	srand(time(NULL)); // semilla random para la funcion rand()
 	bloque mat [ALTO][ANCHO]; // matriz principal
-	option_box matriz_menu[3];
+	option_box matriz_menu[7];
+    option_box matriz_pausa[3];
+    modo matriz_dificultades[3] = {{"FACIL",3,3},{"NORMAL",5,5},{"DIFICIL",5,5}};
 	    
 	    
 	// BLOQUE DE INICICIALIZACION //
@@ -94,6 +95,20 @@ int main() {
 	float radio;
 	float lado;
 	bool menu_opciones = false;
+    short int difficulty_index = 0;
+
+    matriz_menu[0].texto = "JUGAR";
+    matriz_menu[1].texto = "OPCIONES";
+    matriz_menu[2].texto = "SALIR";
+    matriz_menu[3].texto = "DIFICULTAD";
+    matriz_menu[4].texto = "<";
+    matriz_menu[5].texto = ">";
+    matriz_menu[6].texto = "ATRAS";
+
+    matriz_pausa[0].texto = "REANUDAR";
+    matriz_pausa[1].texto = "REINICIAR";
+    matriz_pausa[2].texto = "VOLVER A MENU";
+
 	//////////////////////
 
 
@@ -115,7 +130,16 @@ int main() {
             platform.bounding = set_bounding(((float)disAncho/2)-2.5*anchoplat,disAlto - (disAlto-((float)disAlto*0.90)),((float)disAncho/2)+2.5*anchoplat,disAlto-(disAlto-((float)disAlto*0.90)-16)); // 2.5 COEFICIENTE DE TAMAÑO
             matriz_menu[0].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*2,disAncho-(disAncho/3),disAlto/3+lado*4);
             matriz_menu[1].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*4,disAncho-(disAncho/3),disAlto/3+lado*6);
-            matriz_menu[2].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*6,disAncho-(disAncho/3),disAlto/3+lado*8); 
+            matriz_menu[2].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*6,disAncho-(disAncho/3),disAlto/3+lado*8);
+            matriz_menu[3].bounding = set_bounding(0.3333*disAncho,disAlto/8+lado*2,disAncho-(disAncho/3),disAlto/8+lado*4);
+            matriz_menu[4].bounding = set_bounding(0.3333*disAncho-60,disAlto/8+lado*4,(disAncho/3),disAlto/8+lado*6);
+            matriz_menu[5].bounding = set_bounding(disAncho-(disAncho/3),disAlto/8+lado*4,disAncho-(disAncho/3-60),disAlto/8+lado*6);
+            matriz_menu[6].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*6,disAncho-(disAncho/3),disAlto/3+lado*8);
+
+
+            matriz_pausa[0].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*2,disAncho-(disAncho/3),disAlto/3+lado*4);
+            matriz_pausa[1].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*4,disAncho-(disAncho/3),disAlto/3+lado*6);
+            matriz_pausa[2].bounding = set_bounding(0.25*disAncho,disAlto/3+lado*6,disAncho-(disAncho/4),disAlto/3+lado*8);  
         }
         
 
@@ -124,7 +148,7 @@ int main() {
         al_wait_for_event(queue, &event); // indica al programa que revise si hay eventos
 
         if(event.type == ALLEGRO_EVENT_TIMER){ // si el usuario no ingresa nada simplemente se redibuja el estado en el que estaba
-            if (fuera_mainmenu){
+            if (fuera_mainmenu && !pausa && !menu_opciones){
           
                 if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-10,0,0,disAlto))
                 {
@@ -236,15 +260,13 @@ int main() {
                    game_over = true; 
                 }
                 
-
-                
-
-
-
                 al_clear_to_color(themeslist[contador].color_pantalla);
                 redraw = true;
             }
             
+
+
+
             
             al_clear_to_color(themeslist[contador].color_pantalla);
             redraw = true;    
@@ -254,25 +276,7 @@ int main() {
             cerrar = true;
         }
         else if (event.type == ALLEGRO_EVENT_KEY_CHAR){  // Se fija si se toco alguna tecla
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && !fuera_mainmenu){
-                for (int i = 0; i < ALTO; i++){
-                    for (int j = 0; j < ANCHO; j++)
-                    {
-                        mat[i][j].bounding.ulx = i*(float)disAncho/ANCHO;
-                        mat[i][j].bounding.uly = j*lado;
-                        mat[i][j].bounding.drx = i*(float)disAncho/ANCHO+disAlto/ALTO;
-                        mat[i][j].bounding.dry = j*lado+disAncho/ANCHO;
-                        mat[i][j].estado = true;
-                        mat[i][j].cant_impactos_total = 1;
-                        mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                        mat[i][j].bounding = set_bounding(j*(float)disAncho/ANCHO,i*lado,j*(float)disAncho/ANCHO+(float)disAncho/ANCHO,i*lado+lado);
-                    }
-                }
-                largo = platform.bounding.drx - platform.bounding.ulx; // Si se toca el espacio y el juego no se inicio
-                platform.x = largo/2;
-                fuera_mainmenu = true; // da la orden para poder iniciar el jueg
-                al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla y saca el texto
-            }else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && (ball1.vx == 0 && ball1.vy == 0)){
+            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && (ball1.vx == 0 && ball1.vy == 0) && !pausa && !menu_opciones){
                     if(game_over){
                         vidas = 3;
                         game_over = false;
@@ -319,10 +323,16 @@ int main() {
                 
             al_clear_to_color(themeslist[contador].color_pantalla);   // se limpia la pnatalla  
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE){ // Si se toca escape se sale del programa
-                cerrar = true;
+            else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE){ // Si se toca escape se pone en pausa
+                if (!pausa)
+                {
+                    pausa = true;
+                }else{
+                    pausa = false;
+                }
+                
             }
-            else if (((event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_D) && fuera_mainmenu) && (ball1.vx != 0 || ball1.vy != 0)){
+            else if (((event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_D) && fuera_mainmenu && !pausa && !menu_opciones) && (ball1.vx != 0 || ball1.vy != 0)){
                 float leftside = platform.bounding.ulx;
                 float rightside = platform.bounding.drx;
                 if(event.keyboard.keycode == ALLEGRO_KEY_A){
@@ -345,31 +355,107 @@ int main() {
             
             
             
-        }else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && !fuera_mainmenu){
-            if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[0].bounding.ulx,matriz_menu[0].bounding.uly,matriz_menu[0].bounding.drx,matriz_menu[0].bounding.dry)){
-                fuera_mainmenu = true;
-                for (int i = 0; i < ALTO; i++){
-                    for (int j = 0; j < ANCHO; j++)
-                    {
-                        mat[i][j].bounding.ulx = i*(float)disAncho/ANCHO;
-                        mat[i][j].bounding.uly = j*lado;
-                        mat[i][j].bounding.drx = i*(float)disAncho/ANCHO+disAlto/ALTO;
-                        mat[i][j].bounding.dry = j*lado+disAncho/ANCHO;
-                        mat[i][j].estado = true;
-                        mat[i][j].cant_impactos_total = 1;
-                        mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                        mat[i][j].bounding = set_bounding(j*(float)disAncho/ANCHO,i*lado,j*(float)disAncho/ANCHO+(float)disAncho/ANCHO,i*lado+lado);
+        }else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
+            if (!fuera_mainmenu && !menu_opciones)
+            {
+                if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[0].bounding.ulx,matriz_menu[0].bounding.uly,matriz_menu[0].bounding.drx,matriz_menu[0].bounding.dry)){
+                    fuera_mainmenu = true;
+                    for (int i = 0; i < ALTO; i++){
+                        for (int j = 0; j < ANCHO; j++)
+                        {
+                            mat[i][j].bounding.ulx = i*(float)disAncho/ANCHO;
+                            mat[i][j].bounding.uly = j*lado;
+                            mat[i][j].bounding.drx = i*(float)disAncho/ANCHO+disAlto/ALTO;
+                            mat[i][j].bounding.dry = j*lado+disAncho/ANCHO;
+                            mat[i][j].estado = true;
+                            mat[i][j].cant_impactos_total = 1;
+                            mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
+                            mat[i][j].bounding = set_bounding(j*(float)disAncho/ANCHO,i*lado,j*(float)disAncho/ANCHO+(float)disAncho/ANCHO,i*lado+lado);
+                        }
                     }
+                }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry))
+                {
+                    menu_opciones = true;
+                }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[2].bounding.ulx,matriz_menu[2].bounding.uly,matriz_menu[2].bounding.drx,matriz_menu[2].bounding.dry))
+                {
+                    cerrar = true;
                 }
-            }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry))
-            {
-                menu_opciones = true;
-            }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[2].bounding.ulx,matriz_menu[2].bounding.uly,matriz_menu[2].bounding.drx,matriz_menu[2].bounding.dry))
-            {
-                cerrar = true;
             }
             
             
+            else if(pausa){
+                if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_pausa[0].bounding.ulx,matriz_pausa[0].bounding.uly,matriz_pausa[0].bounding.drx,matriz_pausa[0].bounding.dry)){
+                        pausa = false;
+                    }
+                    else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_pausa[1].bounding.ulx,matriz_pausa[1].bounding.uly,matriz_pausa[1].bounding.drx,matriz_pausa[1].bounding.dry))
+                    {
+                        vidas = 3;
+                        pausa = false;
+                        for (int i = 0; i < ALTO; i++)
+                        {
+                            for (int j = 0; j < ANCHO; j++)
+                            {
+                                mat[i][j].estado = true;
+                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
+                            }
+                            
+                        }
+                        
+                        ball1.vx = 0;
+                        ball1.vy = 0;
+                        ball1.x = (float)disAncho/2;
+                        ball1.y = disAlto - ((disAlto-((float)disAlto*0.90))+(6*anchorect)/32);
+                        ball1.bounding =  set_bounding(ball1.x-radio,(ball1.y-radio),ball1.x+radio,(ball1.y+radio));
+                        platform.bounding = set_bounding(((float)disAncho/2)-2.5*anchoplat,disAlto - (disAlto-((float)disAlto*0.90)),((float)disAncho/2)+2.5*anchoplat,disAlto-(disAlto-((float)disAlto*0.90)-16));
+
+                    }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_pausa[2].bounding.ulx,matriz_pausa[2].bounding.uly,matriz_pausa[2].bounding.drx,matriz_pausa[2].bounding.dry))
+                    {
+                        
+                        vidas = 3;
+                        pausa = false;
+                        fuera_mainmenu = false;
+                        for (int i = 0; i < ALTO; i++)
+                        {
+                            for (int j = 0; j < ANCHO; j++)
+                            {
+                                mat[i][j].estado = true;
+                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
+                            }
+                            
+                        }
+                        
+                        ball1.vx = 0;
+                        ball1.vy = 0;
+                        ball1.x = (float)disAncho/2;
+                        ball1.y = disAlto - ((disAlto-((float)disAlto*0.90))+(6*anchorect)/32);
+                        ball1.bounding =  set_bounding(ball1.x-radio,(ball1.y-radio),ball1.x+radio,(ball1.y+radio));
+                        platform.bounding = set_bounding(((float)disAncho/2)-2.5*anchoplat,disAlto - (disAlto-((float)disAlto*0.90)),((float)disAncho/2)+2.5*anchoplat,disAlto-(disAlto-((float)disAlto*0.90)-16));
+
+                    }
+                }
+            else if(menu_opciones){
+                if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[4].bounding.ulx,matriz_menu[4].bounding.uly,matriz_menu[4].bounding.drx,matriz_menu[4].bounding.dry))
+                {
+                    difficulty_index--;
+                    if (difficulty_index < 0)
+                    {
+                        difficulty_index = 3;
+                    }
+                    
+                }
+                else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[5].bounding.ulx,matriz_menu[5].bounding.uly,matriz_menu[5].bounding.drx,matriz_menu[5].bounding.dry))
+                {
+                    difficulty_index++;
+                    if (difficulty_index > 2)
+                    {
+                        difficulty_index = 0;
+                    } 
+                }
+                else if(collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[6].bounding.ulx,matriz_menu[6].bounding.uly,matriz_menu[6].bounding.drx,matriz_menu[6].bounding.dry)){
+                    menu_opciones = false;
+                }
+                
+            }
         }
             
         
@@ -398,37 +484,53 @@ int main() {
 
         if(redraw && al_is_event_queue_empty(queue)) // se fija que se pueda redibujar y que no haya eventos en la fila de eventos
         {   
-            if(fuera_mainmenu){
-            dibujar_all(disAlto,disAncho,lado,themeslist[contador].color_lineas,platform.bounding,ball1,mat);
-            al_flip_display();
-            if (game_over){
-                al_draw_multiline_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,disAlto/2,disAncho-disAncho/3,30,ALLEGRO_ALIGN_CENTER,"GAME OVER\n PRESIONE [ESC] PARA IR AL MENU PRINCIPAL O [SPACE] PARA VOLVER A INTENTAR");}
-                al_flip_display();
-            redraw = false;
-            }else{ // Si no se inicio el programa se pone el menu
-                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[0].bounding.dry-(matriz_menu[0].bounding.dry-matriz_menu[0].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,"JUGAR");
-                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[1].bounding.dry-(matriz_menu[1].bounding.dry-matriz_menu[1].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,"OPCIONES");
-                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[2].bounding.dry-(matriz_menu[2].bounding.dry-matriz_menu[2].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,"SALIR");
+            if(fuera_mainmenu && !menu_opciones){
+                dibujar_all(disAlto,disAncho,lado,themeslist[contador].color_lineas,platform.bounding,ball1,mat);
+                if (pausa){
+                    al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[0].bounding.dry-(matriz_menu[0].bounding.dry-matriz_menu[0].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_pausa[0].texto);
+                    al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[1].bounding.dry-(matriz_menu[1].bounding.dry-matriz_menu[1].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_pausa[1].texto);
+                    al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[2].bounding.dry-(matriz_menu[2].bounding.dry-matriz_menu[2].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_pausa[2].texto);
+                    
+                    al_draw_rectangle(matriz_pausa[0].bounding.ulx,matriz_pausa[0].bounding.uly,matriz_pausa[0].bounding.drx,matriz_pausa[0].bounding.dry,al_map_rgb(255, 92, 194),1);
+                    al_draw_rectangle(matriz_pausa[1].bounding.ulx,matriz_pausa[1].bounding.uly,matriz_pausa[1].bounding.drx,matriz_pausa[1].bounding.dry,al_map_rgb(255, 92, 194),1);
+                    al_draw_rectangle(matriz_pausa[2].bounding.ulx,matriz_pausa[2].bounding.uly,matriz_pausa[2].bounding.drx,matriz_pausa[2].bounding.dry,al_map_rgb(255, 92, 194),1);
+                }
+                
+                if (game_over){
+                    al_draw_multiline_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,disAlto/2,disAncho-disAncho/3,30,ALLEGRO_ALIGN_CENTER,"GAME OVER\n PRESIONE [ESC] PARA IR AL MENU PRINCIPAL O [SPACE] PARA VOLVER A INTENTAR");
+                }
+                al_flip_display();        
+                redraw = false;
+            }else if (!fuera_mainmenu){ // Si no se inicio el programa se pone el menu
+                if (menu_opciones)
+                {
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[3].bounding.dry-(matriz_menu[3].bounding.dry-matriz_menu[3].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[3].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,matriz_menu[4].bounding.ulx+30,matriz_menu[4].bounding.dry-(matriz_menu[4].bounding.dry-matriz_menu[4].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[4].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,matriz_menu[5].bounding.ulx+30,matriz_menu[5].bounding.dry-(matriz_menu[5].bounding.dry-matriz_menu[5].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[5].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[5].bounding.dry-(matriz_menu[5].bounding.dry-matriz_menu[5].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_dificultades[difficulty_index].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[6].bounding.dry-(matriz_menu[6].bounding.dry-matriz_menu[6].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[6].texto);
+                    
 
 
+                al_draw_rectangle(matriz_menu[3].bounding.ulx,matriz_menu[3].bounding.uly,matriz_menu[3].bounding.drx,matriz_menu[3].bounding.dry,al_map_rgb(255, 92, 194),1);
+                al_draw_rectangle(matriz_menu[4].bounding.ulx,matriz_menu[4].bounding.uly,matriz_menu[4].bounding.drx,matriz_menu[4].bounding.dry,al_map_rgb(255, 92, 194),1);
+                al_draw_rectangle(matriz_menu[5].bounding.ulx,matriz_menu[5].bounding.uly,matriz_menu[5].bounding.drx,matriz_menu[5].bounding.dry,al_map_rgb(255, 92, 194),1);
+                al_draw_rectangle(matriz_menu[6].bounding.ulx,matriz_menu[6].bounding.uly,matriz_menu[6].bounding.drx,matriz_menu[6].bounding.dry,al_map_rgb(255, 92, 194),1);
+                  
+                }else{
+
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[0].bounding.dry-(matriz_menu[0].bounding.dry-matriz_menu[0].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[0].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[1].bounding.dry-(matriz_menu[1].bounding.dry-matriz_menu[1].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[1].texto);
+                al_draw_text(gameoverfont,themeslist[contador].color_texto,disAncho/2,matriz_menu[2].bounding.dry-(matriz_menu[2].bounding.dry-matriz_menu[2].bounding.uly)*0.75,ALLEGRO_ALIGN_CENTER,matriz_menu[2].texto);
                 al_draw_rectangle(matriz_menu[0].bounding.ulx,matriz_menu[0].bounding.uly,matriz_menu[0].bounding.drx,matriz_menu[0].bounding.dry,al_map_rgb(255, 92, 194),1);
                 al_draw_rectangle(matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry,al_map_rgb(255, 92, 194),1);
                 al_draw_rectangle(matriz_menu[2].bounding.ulx,matriz_menu[2].bounding.uly,matriz_menu[2].bounding.drx,matriz_menu[2].bounding.dry,al_map_rgb(255, 92, 194),1);
+                }
                 al_flip_display();
                 redraw = false;
             }
+            
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 
 // Destruye todo lo que se uso de allegro
@@ -444,15 +546,6 @@ int main() {
     al_destroy_audio_stream(music);
     printf("Destruyendo imagen...\n");
     return 0;
-
-
-
-
-
-
-
-
-    
 }
 
 //  al_draw_multiline_textf(font,themeslist[contador].color_texto,disAncho/2,disAlto/8,disAncho-disAncho/3,20,ALLEGRO_ALIGN_CENTER,"Bienvenido al juego de la vida, para empezar presione ESPACIO, para pasar una generacion presione ENTER (se recomienda dejar apretado para un mejor efecto), haga click en las celdas que desee matar o resucitar, mouse scroll para cambiar tamaño de pantalla (solo en este menu). Podra elegir cuantas generaciones escribiendo el numero de generaciones y apretando enter una vez iniciado el juego (El numero debe ser menor a %u, se recomienda que no sea un numero tan grande para que no vaya tan lento el programa),pasar '0' generaciones implicara pasar 1 generacion \n\nTema actual: %s",UINT_MAX,themeslist[contador].nombre);

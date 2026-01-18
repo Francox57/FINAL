@@ -49,6 +49,12 @@ typedef struct {
 	char * texto;
 } option_box;
 
+typedef struct 
+{
+    char * texto;
+    float dx,dy;
+}modo;
+
 
 void llenar_mat (bloque mat[ALTO][ANCHO]);  //Funcion para llenar matriz
 int numero (void);  //Pasar de getchar a int
