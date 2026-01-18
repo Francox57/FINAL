@@ -10,17 +10,17 @@
 #elif(ANCHO>50 || ALTO>50 || ANCHO*ALTO>1000)
 #warning parametros muy altos, sera dificil de ver la matriz
 #endif
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
-#include <time.h>
-#include <math.h>
+#include <allegro5/allegro5.h> // Allegro
+#include <allegro5/allegro_font.h> // Inicializa fuente de allegro
+#include <stdbool.h> // introduce tipo de dato booleano
+#include <stdio.h> // introduce funciones generales
+#include <allegro5/allegro_ttf.h> // introudce fuentestipo ttf
+#include <allegro5/allegro_image.h> // introduce imagenes
+#include <allegro5/allegro_primitives.h> // introduce primitvas para dibujar 
+#include <allegro5/allegro_audio.h> // introduce audio
+#include <allegro5/allegro_acodec.h> // permite la generacion de musica
+#include <time.h> // la usamos para randomizar la semilla
+#include <math.h> // introduce funciones trigonometricas
 
 
 typedef struct {

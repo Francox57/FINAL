@@ -106,7 +106,7 @@ int main()
     // llena la matriz de casillas vivas
     al_start_timer(timer); // empieza el timer
 
-        while(!cerrar)
+    while(!cerrar)
     {   
         
         THEMES themeslist[MAXTHEMES] = {dark,light,bluescreen,random}; // Arreglo de los temas disponibles
@@ -129,26 +129,21 @@ int main()
 
         al_wait_for_event(queue, &event); // indica al programa que revise si hay eventos
 
-        if(event.type == ALLEGRO_EVENT_TIMER){ // si el usuario no ingresa nada simplemente se redibuja el estado en el que estaba
+        if(event.type == ALLEGRO_EVENT_TIMER){ // si el usuario no ingresa nada se calcula las posiciones correspondientes de la pelota y el estado del juego
             if (fuera_mainmenu){
           
-                if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-10,0,0,disAlto))
-                {
+                if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-10,0,0,disAlto)){
                     ball1.vx = -ball1.vx;
                     ball1.x = radio+1;
-                }
-                if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,disAncho-10,0,disAncho,disAlto))
-                {
+                } else if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,disAncho-10,0,disAncho,disAlto)){
                     ball1.vx = -ball1.vx;
                     ball1.x = disAncho-radio-1;
                 }
-                if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-5,-10,disAncho+5,0))
-                {
+                    else if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-5,-10,disAncho+5,0)){
                     ball1.vy = -ball1.vy;
                     ball1.y = radio+1;
                 }
-                if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-5,disAlto+10,disAncho+5,disAlto+10))
-                {
+                    else if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,-5,disAlto+10,disAncho+5,disAlto+10)){
                     ball1.vx = 0;
                     ball1.vy = 0;
                     ball1.x = (float)disAncho/2;
@@ -159,10 +154,10 @@ int main()
                 }
                 
                         
-                char collision_wp = collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,platform.bounding.ulx,platform.bounding.uly,platform.bounding.drx,platform.bounding.dry);
+
                 
                             
-                if (collision_wp == 1){   
+                else if (collide(ball1.bounding.ulx,ball1.bounding.uly,ball1.bounding.drx,ball1.bounding.dry,platform.bounding.ulx,platform.bounding.uly,platform.bounding.drx,platform.bounding.dry) == 1){   
                     ball1.y = platform.bounding.uly-radio-1;
                     hit = (ball1.x - platform.bounding.ulx) / (platform.bounding.drx-platform.bounding.ulx);
                     angulo = (hit-0.5)*2.0*max_angulo;
@@ -260,7 +255,7 @@ int main()
             cerrar = true;
         }
         else if (event.type == ALLEGRO_EVENT_KEY_CHAR){  // Se fija si se toco alguna tecla
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && !fuera_mainmenu){
+            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && !fuera_mainmenu){ // lo mismo que cuando se apreta jugar se puede sacar
                 for (int i = 0; i < ALTO; i++){
                     for (int j = 0; j < ANCHO; j++)
                     {
@@ -278,7 +273,7 @@ int main()
                 platform.x = largo/2;
                 fuera_mainmenu = true; // da la orden para poder iniciar el jueg
                 al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla y saca el texto
-            }else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && (ball1.vx == 0 && ball1.vy == 0)){
+            }else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && (ball1.vx == 0 && ball1.vy == 0)){ // si la pelota esta quieta la dispara
                     if(game_over){
                         vidas = 3;
                         game_over = false;
@@ -351,10 +346,10 @@ int main()
             
             
             
-        }else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && !fuera_mainmenu){
-            if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[0].bounding.ulx,matriz_menu[0].bounding.uly,matriz_menu[0].bounding.drx,matriz_menu[0].bounding.dry)){
+        }else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && !fuera_mainmenu){ // Si detecta click y esta fuera del menu principal
+            if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[0].bounding.ulx,matriz_menu[0].bounding.uly,matriz_menu[0].bounding.drx,matriz_menu[0].bounding.dry)){ // si toco en jugar
                 fuera_mainmenu = true;
-                for (int i = 0; i < ALTO; i++){
+                for (int i = 0; i < ALTO; i++){ // bloque que define la bounding de los bloques su estado y sus impactos
                     for (int j = 0; j < ANCHO; j++)
                     {
                         mat[i][j].bounding.ulx = i*(float)disAncho/ANCHO;
@@ -367,11 +362,11 @@ int main()
                         mat[i][j].bounding = set_bounding(j*(float)disAncho/ANCHO,i*lado,j*(float)disAncho/ANCHO+(float)disAncho/ANCHO,i*lado+lado);
                     }
                 }
-            }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry))
+            }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry)) // si toco en opciones
             {
                 menu_opciones = true;
             }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[2].bounding.ulx,matriz_menu[2].bounding.uly,matriz_menu[2].bounding.drx,matriz_menu[2].bounding.dry))
-            {
+            { // si toco en salir 
                 cerrar = true;
             }
             

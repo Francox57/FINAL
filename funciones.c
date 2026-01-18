@@ -97,16 +97,16 @@ char collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int 
     
     float overlapX = (ax2 < bx2 ? ax2 : bx2) - (ax1 > bx1 ? ax1 : bx1); // se fija por donde penetro mas si verticalmente u horizontalmente 
     float overlapY = (ay2 < by2 ? ay2 : by2) - (ay1 > by1 ? ay1 : by1);
-    if (overlapX < overlapY) // en caso de que sea vertical
+    if (overlapX < overlapY) // en caso de que sea horizontal
     {
         return -1;
     }else if (overlapX > overlapY)
     {
-         return 1;// caso horizontal
+         return 1;// caso vertical
     }
     else
     { 
-        return 2;
+        return 2;// caso en la esquina
     }
     
     
