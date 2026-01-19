@@ -65,16 +65,27 @@ void must_init(bool test, const char *descripcion) {  // Se asegura que todo se 
 }
 
 
-void dibujar_all(int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO]) { // Dibuja las filas y columnas calculando el offset
+void dibujar_all(int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo) { // Dibuja las filas y columnas calculando el offset
 	
 	int i,j;
+
+            
+
 	for (i = 0; i < ALTO; i++) { // Recorre que tan ancho es la matriz
-		
+		ALLEGRO_COLOR color_bloque;                                    
+        switch(i % 5) {
+            case 0: color_bloque = al_map_rgb(255, 0, 0); break;     // Rojo (Boss Galaga)
+            case 1: color_bloque = al_map_rgb(224, 0, 224); break;   // Purpura (Zako)
+            case 2: color_bloque = al_map_rgb(224, 224, 0); break;   // Amarillo (Abeja)
+            case 3: color_bloque = al_map_rgb(0, 100, 255); break;   // Azul Arcade (Escorpion)
+        	default: color_bloque = al_map_rgb(0, 224, 0); break;    // Verde (Spy)
+        }
 		for (j = 0; j < ANCHO; j++){     
 			
 			if (mat[i][j].estado == true) {
 				
-				al_draw_rectangle(mat[i][j].bounding.ulx, mat[i][j].bounding.uly, mat[i][j].bounding.drx, mat[i][j].bounding.dry, color, 1);     
+				al_draw_filled_rectangle(mat[i][j].bounding.ulx, mat[i][j].bounding.uly, mat[i][j].bounding.drx, mat[i][j].bounding.dry, color_bloque);
+				al_draw_rectangle(mat[i][j].bounding.ulx, mat[i][j].bounding.uly, mat[i][j].bounding.drx, mat[i][j].bounding.dry, color_fondo,2);         
 			}
 		}
 	}

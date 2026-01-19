@@ -4,7 +4,7 @@
 	#define ALTO 10
 	#define PI 3.14159265358979
 	#define DEGTORAD(deg) ((deg*PI)/180)
-	#define MAXTHEMES 4
+	#define MAXTHEMES 3
 #if (ANCHO<=0 || ALTO<=0)
 	#error valor invalido para matriz
 #elif(ANCHO>50 || ALTO>50 || ANCHO*ALTO>1000)
@@ -21,7 +21,6 @@
 #include <allegro5/allegro_acodec.h> // permite la generacion de musica
 #include <time.h> // la usamos para randomizar la semilla
 #include <math.h> // introduce funciones trigonometricas
-
 
 typedef struct {
 	float ulx,uly,drx,dry;
@@ -55,6 +54,15 @@ typedef struct
     float dx,dy;
 }modo;
 
+typedef struct { // Se crea la estructura temas
+	char * nombre;
+	ALLEGRO_COLOR color_texto;
+	ALLEGRO_COLOR color_pantalla;
+	ALLEGRO_COLOR color_lineas;
+	ALLEGRO_COLOR color_casilleros;
+}THEMES;
+
+	
 
 void llenar_mat (bloque mat[ALTO][ANCHO]);  //Funcion para llenar matriz
 int numero (void);  //Pasar de getchar a int
@@ -64,7 +72,7 @@ void copiar (bloque mat[ALTO][ANCHO], bloque matReferencia[ALTO][ANCHO]);  // Fu
 // FUNCIONES PARA ALLEGRO 
 void must_init (bool test, const char *descrpcion);  // Se fija que inicialize bien todo
 void destroy_init (bool test, const char *descripcion);
-void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO]); // dibuja las filas y columnas
+void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo); // dibuja las filas y columnas
 void dibujar_ball (float cx, float cy, float r);
 void dibujar_endgame (ALLEGRO_BITMAP* end_screen);
 // FUNCIONES GAMEPLAY
