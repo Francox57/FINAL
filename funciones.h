@@ -26,7 +26,6 @@ typedef struct {
 	float ulx,uly,drx,dry;
 } bounding_box;
 
-
 typedef struct {
 	float x,y;
 	float dx,dy;
@@ -53,6 +52,22 @@ typedef struct
     char * texto;
     float dx,dy;
 }modo;
+
+typedef enum {
+    POWERUP_INACTIVE,
+    POWERUP_FALLING,
+    POWERUP_ACTIVE,
+} powerupstate;
+
+
+typedef struct 
+{
+	bounding_box bounding;
+	float dy;
+	char type;
+	powerupstate state;
+}powerup;
+
 
 typedef struct { // Se crea la estructura temas
 	char * nombre;

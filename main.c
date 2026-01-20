@@ -6,7 +6,7 @@ int main() {
 	bloque mat [ALTO][ANCHO]; // matriz principal
 	option_box matriz_menu[9];
     option_box matriz_pausa[3];
-	    
+	
 	    
 	// BLOQUE DE INICICIALIZACION //
 	must_init(al_init(), "allegro"); // Cada must_init verifica que se haya inicializado cada cosa
@@ -42,7 +42,7 @@ int main() {
 	bool game_over = false;
 	int contador = 0; // variable que sirve para determinar que tema usar
     int puntaje = 0;
-	   
+	int dice;
 
 	typedef struct { // Se crea la estructura temas
 		char * nombre;
@@ -78,7 +78,14 @@ int main() {
 	// BLOQUE ENTIDADES //
 	entities platform;
 	entities ball1;
-	    
+	
+    powerup more_balls;
+    more_balls.bounding = set_bounding(0,0,0,0);
+    more_balls.state = POWERUP_INACTIVE;
+    powerup powerups_mat[1] = {more_balls};
+
+
+
     bool key_left = false;
     bool key_right = false;
 
@@ -120,9 +127,10 @@ int main() {
 	// llena la matriz de casillas vivas
 	al_start_timer(timer); // empieza el timer
 
-        while(!cerrar)
+    while(!cerrar)
     {   
- // Arreglo de los temas disponibles
+        
+
         
         if (!fuera_mainmenu && !ball1.vx && !ball1.vy){
             lado = (disAlto/2)/ALTO; // cuanto mide los lados verticales de las casillas
@@ -133,6 +141,7 @@ int main() {
             ball1.y = disAlto - ((disAlto-((float)disAlto*0.90))+(6*anchorect)/32);
             ball1.bounding =  set_bounding(ball1.x-radio,(ball1.y-radio),ball1.x+radio,(ball1.y+radio));
             platform.bounding = set_bounding(((float)disAncho/2)-2.5*anchoplat,disAlto - (disAlto-((float)disAlto*0.9)),((float)disAncho/2)+2.5*anchoplat,disAlto-(disAlto-((float)disAlto*0.895)-16)); // 2.5 COEFICIENTE DE TAMAÑO
+
             matriz_menu[0].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*2,disAncho-(disAncho/3),disAlto/3+lado*4);
             matriz_menu[1].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*4,disAncho-(disAncho/3),disAlto/3+lado*6);
             matriz_menu[2].bounding = set_bounding(0.3333*disAncho,disAlto/3+lado*6,disAncho-(disAncho/3),disAlto/3+lado*8);
@@ -285,6 +294,14 @@ int main() {
                             if (mat[i][j].estado)
                             {
                                 ball1.vx = -ball1.vx;
+                            for(int k = 0; k < 1; k++){
+                                if ((!(dice = (rand() % 1)%6)) && powerups_mat[k].state == POWERUP_INACTIVE)
+                                {
+                                    powerups_mat[k].state = POWERUP_FALLING;
+                                    powerups_mat[k].bounding = set_bounding(mat[i][j].bounding.ulx+anchorect/4,mat[i][j].bounding.uly,mat[i][j].bounding.drx-anchorect/4,mat[i][j].bounding.dry);                       
+                                    powerups_mat[k].dy = 3;
+                                }
+                            }
                                 colisiono = true;
                             }
                             
@@ -299,6 +316,14 @@ int main() {
                            if (mat[i][j].estado)
                             {
                                 ball1.vy = -ball1.vy;
+                            for(int k = 0; k < 1; k++){
+                                if ((!(dice = (rand() % 1)%6)) && powerups_mat[k].state == POWERUP_INACTIVE)
+                                {
+                                    powerups_mat[k].state = POWERUP_FALLING;
+                                    powerups_mat[k].bounding = set_bounding(mat[i][j].bounding.ulx+anchorect/4,mat[i][j].bounding.uly,mat[i][j].bounding.drx-anchorect/4,mat[i][j].bounding.dry);                       
+                                    powerups_mat[k].dy = 3;
+                                }
+                            }
                                 colisiono = true;
                             }
                         
@@ -335,7 +360,21 @@ int main() {
                 ball1.bounding.dry += ball1.vy;
                 ball1.x = ball1.bounding.ulx+radio;
                 ball1.y = ball1.bounding.uly-radio;
+               
+                for (int i = 0; i < 1; i++)
+                {
+                    //printf("%d\n%d",i,powerups_mat[i].state);
+                    if (powerups_mat[i].state == POWERUP_FALLING)
+                    {
+                        powerups_mat[i].bounding.uly += powerups_mat[i].dy;
+                        powerups_mat[i].bounding.dry += powerups_mat[i].dy;
+                    }
+                    
 
+
+                }
+                
+          
 
                 if (vidas == 0){
                    game_over = true; 
@@ -571,7 +610,7 @@ int main() {
         {   
             if(fuera_mainmenu && !menu_opciones){
                 dibujar_all(disAlto,disAncho,lado,themeslist[contador].color_lineas,platform.bounding,ball1,mat,themeslist[contador].color_pantalla);
-
+                al_draw_rectangle(powerups_mat[0].bounding.ulx,powerups_mat[0].bounding.uly,powerups_mat[0].bounding.drx,powerups_mat[0].bounding.dry,themeslist[contador].color_casilleros,1);
 
 
                 if (pausa){
