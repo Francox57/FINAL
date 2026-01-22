@@ -41,8 +41,11 @@ int main() {
 	bool pausa = false;
 	bool game_over = false;
 	int contador = 0; // variable que sirve para determinar que tema usar
-    int puntaje = 0;
+        int puntaje = 0;
 	int dice;
+	int nivel = 0;
+	bool nivel_ganado = false;
+	int bloques_vivos = 0;
 
 	typedef struct { // Se crea la estructura temas
 		char * nombre;
@@ -354,6 +357,38 @@ int main() {
                     
                 }
                 
+                
+                bloques_vivos = recuento_bloques(mat);
+                if (bloques_vivos) {
+                	bloques_vivos = 0;
+                }
+                else {
+                	nivel_ganado = true;
+                	bloques_vivos = 0;
+                }
+                
+                if (nivel_ganado) {
+                	nivel++;
+                	if (nivel >= 3) {
+                		game_over = true;
+                		nivel_ganado = false;
+                		nivel = 0;
+                	}
+                	else {
+                		llenar_mat(mat, nivel);
+                		ball1.vx = 0;
+				ball1.vy = 0; 
+				ball1.x = (float)disAncho / 2;
+				ball1.y = disAlto - ((disAlto - ((float)disAlto * 0.90)) + (6 * anchorect) / 32);
+				ball1.bounding = set_bounding(ball1.x - radio, ball1.y - radio, ball1.x + radio, ball1.y + radio);
+				platform.bounding = set_bounding(((float)disAncho / 2) - 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90)), ((float)disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90) - 16));
+                		al_rest(0.5);
+                		nivel_ganado = false;
+                	}
+                }
+                
+                
+                
                 ball1.bounding.ulx += ball1.vx;
                 ball1.bounding.uly += ball1.vy;
                 ball1.bounding.drx += ball1.vx;
@@ -377,8 +412,10 @@ int main() {
           
 
                 if (vidas == 0){
-                   game_over = true; 
+                   game_over = true;
+                   nivel = 0;
                 }
+                
                 
                 al_clear_to_color(themeslist[contador].color_pantalla);
                 redraw = true;
@@ -417,15 +454,7 @@ int main() {
                     if(game_over){
                         vidas = 3;
                         game_over = false;
-                        for (int i = 0; i < ALTO; i++)
-                        {
-                            for (int j = 0; j < ANCHO; j++)
-                            {
-                                mat[i][j].estado = true;
-                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                            }
-                            
-                        }
+                        llenar_mat(mat, 0);
                     }
                     angulo = (rand() % 100)+15;
                     ball1.vx = (float)ball1.dx*cos(DEGTORAD(angulo));
@@ -437,15 +466,7 @@ int main() {
                     vidas = 3;
                     pausa = false;
                     fuera_mainmenu = false;
-                        for (int i = 0; i < ALTO; i++)
-                        {
-                            for (int j = 0; j < ANCHO; j++)
-                            {
-                                mat[i][j].estado = true;
-                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                            }
-                            
-                        }
+                    llenar_mat(mat, 0);
                     game_over = false;
                 }else
                     if (!pausa)
@@ -473,12 +494,10 @@ int main() {
                             mat[i][j].bounding.uly = j*lado;
                             mat[i][j].bounding.drx = i*(float)disAncho/ANCHO+disAlto/ALTO;
                             mat[i][j].bounding.dry = j*lado+disAncho/ANCHO;
-                            mat[i][j].estado = true;
-                            mat[i][j].cant_impactos_total = 1;
-                            mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
                             mat[i][j].bounding = set_bounding(j*(float)disAncho/ANCHO,(i*lado)+3*lado,j*(float)disAncho/ANCHO+(float)disAncho/ANCHO,i*lado+4*lado);
                         }
                     }
+                    llenar_mat(mat, 0);
                     
                 }else if (collide(event.mouse.x,event.mouse.y,event.mouse.x,event.mouse.y,matriz_menu[1].bounding.ulx,matriz_menu[1].bounding.uly,matriz_menu[1].bounding.drx,matriz_menu[1].bounding.dry))
                 {
@@ -498,15 +517,7 @@ int main() {
                     {
                         vidas = 3;
                         pausa = false;
-                        for (int i = 0; i < ALTO; i++)
-                        {
-                            for (int j = 0; j < ANCHO; j++)
-                            {
-                                mat[i][j].estado = true;
-                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                            }
-                            
-                        }
+                        llenar_mat(mat, 0);
                         
                         ball1.vx = 0;
                         ball1.vy = 0;
@@ -521,15 +532,7 @@ int main() {
                         vidas = 3;
                         pausa = false;
                         fuera_mainmenu = false;
-                        for (int i = 0; i < ALTO; i++)
-                        {
-                            for (int j = 0; j < ANCHO; j++)
-                            {
-                                mat[i][j].estado = true;
-                                mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-                            }
-                            
-                        }
+                        llenar_mat(mat, 0);
                         
                         ball1.vx = 0;
                         ball1.vy = 0;
@@ -676,4 +679,3 @@ int main() {
     return 0;
 }
 
-//  al_draw_multiline_textf(font,themeslist[contador].color_texto,disAncho/2,disAlto/8,disAncho-disAncho/3,20,ALLEGRO_ALIGN_CENTER,"Bienvenido al juego de la vida, para empezar presione ESPACIO, para pasar una generacion presione ENTER (se recomienda dejar apretado para un mejor efecto), haga click en las celdas que desee matar o resucitar, mouse scroll para cambiar tamaño de pantalla (solo en este menu). Podra elegir cuantas generaciones escribiendo el numero de generaciones y apretando enter una vez iniciado el juego (El numero debe ser menor a %u, se recomienda que no sea un numero tan grande para que no vaya tan lento el programa),pasar '0' generaciones implicara pasar 1 generacion \n\nTema actual: %s",UINT_MAX,themeslist[contador].nombre);

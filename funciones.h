@@ -47,26 +47,24 @@ typedef struct {
 	char * texto;
 } option_box;
 
-typedef struct 
-{
-    char * texto;
-    float dx,dy;
-}modo;
+typedef struct {
+	char * texto;
+	float dx,dy;
+} modo;
 
 typedef enum {
-    POWERUP_INACTIVE,
-    POWERUP_FALLING,
-    POWERUP_ACTIVE,
+	POWERUP_INACTIVE,
+	POWERUP_FALLING,
+	POWERUP_ACTIVE,
 } powerupstate;
 
 
-typedef struct 
-{
+typedef struct {
 	bounding_box bounding;
 	float dy;
 	char type;
 	powerupstate state;
-}powerup;
+} powerup;
 
 
 typedef struct { // Se crea la estructura temas
@@ -75,26 +73,29 @@ typedef struct { // Se crea la estructura temas
 	ALLEGRO_COLOR color_pantalla;
 	ALLEGRO_COLOR color_lineas;
 	ALLEGRO_COLOR color_casilleros;
-}THEMES;
+} THEMES;
 
-	
+extern int mapas_niveles[3][ALTO][ANCHO];
 
-void llenar_mat (bloque mat[ALTO][ANCHO]);  //Funcion para llenar matriz
+void llenar_mat (bloque mat[ALTO][ANCHO], int nivel);  //Funcion para llenar matriz
 int numero (void);  //Pasar de getchar a int
 void copiar (bloque mat[ALTO][ANCHO], bloque matReferencia[ALTO][ANCHO]);  // Funcion para copiar matriz
+int recuento_bloques(bloque mat[ANCHO][ALTO]);
 
 
-// FUNCIONES PARA ALLEGRO 
+// FUNCIONES PARA ALLEGRO //
 void must_init (bool test, const char *descrpcion);  // Se fija que inicialize bien todo
 void destroy_init (bool test, const char *descripcion);
 void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo); // dibuja las filas y columnas
 void dibujar_ball (float cx, float cy, float r);
 void dibujar_endgame (ALLEGRO_BITMAP* end_screen);
-// FUNCIONES GAMEPLAY
+/////////////////////////
 
-
+// FUNCIONES GAMEPLAY//
 bounding_box set_bounding (float ulx, float uly, float  drx, float dry);
 char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
 void nace (bloque mat[ALTO][ANCHO], int i, int j);
 void muere (bloque mat[ALTO][ANCHO], int i, int j);
+//////////////////////
+
 #endif
