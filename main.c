@@ -41,7 +41,7 @@ int main() {
 	bool pausa = false;
 	bool game_over = false;
 	int contador = 0; // variable que sirve para determinar que tema usar
-        int puntaje = 0;
+    int puntaje = 0;
 	int dice;
 	int nivel = 0;
 	bool nivel_ganado = false;
@@ -377,11 +377,11 @@ int main() {
                 	else {
                 		llenar_mat(mat, nivel);
                 		ball1.vx = 0;
-				ball1.vy = 0; 
-				ball1.x = (float)disAncho / 2;
-				ball1.y = disAlto - ((disAlto - ((float)disAlto * 0.90)) + (6 * anchorect) / 32);
-				ball1.bounding = set_bounding(ball1.x - radio, ball1.y - radio, ball1.x + radio, ball1.y + radio);
-				platform.bounding = set_bounding(((float)disAncho / 2) - 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90)), ((float)disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90) - 16));
+                    ball1.vy = 0; 
+                    ball1.x = (float)disAncho / 2;
+                    ball1.y = disAlto - ((disAlto - ((float)disAlto * 0.90)) + (6 * anchorect) / 32);
+                    ball1.bounding = set_bounding(ball1.x - radio, ball1.y - radio, ball1.x + radio, ball1.y + radio);
+                    platform.bounding = set_bounding(((float)disAncho / 2) - 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90)), ((float)disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float)disAlto * 0.90) - 16));
                 		al_rest(0.5);
                 		nivel_ganado = false;
                 	}
