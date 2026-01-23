@@ -5,6 +5,7 @@
 	#define PI 3.14159265358979
 	#define DEGTORAD(deg) ((deg*PI)/180)
 	#define MAXTHEMES 3
+	#define MAX_STARS 100
 #if (ANCHO<=0 || ALTO<=0)
 	#error valor invalido para matriz
 #elif(ANCHO>50 || ALTO>50 || ANCHO*ALTO>1000)
@@ -22,6 +23,8 @@
 #include <time.h> // la usamos para randomizar la semilla
 #include <math.h> // introduce funciones trigonometricas
 
+
+// ESTRUCTURAS //
 typedef struct {
 	float ulx,uly,drx,dry;
 } bounding_box;
@@ -33,14 +36,12 @@ typedef struct {
 	bounding_box bounding;
 } entities;
 
-
 typedef struct {
 	bool estado;
 	char cant_impactos_actual;
 	char cant_impactos_total;
 	bounding_box bounding;
 } bloque;
-
 
 typedef struct {
 	bounding_box bounding;
@@ -58,7 +59,6 @@ typedef enum {
 	POWERUP_ACTIVE,
 } powerupstate;
 
-
 typedef struct {
 	bounding_box bounding;
 	float dy;
@@ -66,6 +66,10 @@ typedef struct {
 	powerupstate state;
 } powerup;
 
+typedef struct {
+	float x, y, velocidad;
+	int tamano;
+} Star;
 
 typedef struct { // Se crea la estructura temas
 	char * nombre;
@@ -74,28 +78,19 @@ typedef struct { // Se crea la estructura temas
 	ALLEGRO_COLOR color_lineas;
 	ALLEGRO_COLOR color_casilleros;
 } THEMES;
+///////////////////////////////
 
 extern int mapas_niveles[3][ALTO][ANCHO];
 
-void llenar_mat (bloque mat[ALTO][ANCHO], int nivel);  //Funcion para llenar matriz
-int numero (void);  //Pasar de getchar a int
-void copiar (bloque mat[ALTO][ANCHO], bloque matReferencia[ALTO][ANCHO]);  // Funcion para copiar matriz
-int recuento_bloques(bloque mat[ANCHO][ALTO]);
-
-
-// FUNCIONES PARA ALLEGRO //
-void must_init (bool test, const char *descrpcion);  // Se fija que inicialize bien todo
-void destroy_init (bool test, const char *descripcion);
-void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo); // dibuja las filas y columnas
-void dibujar_ball (float cx, float cy, float r);
-void dibujar_endgame (ALLEGRO_BITMAP* end_screen);
-/////////////////////////
-
-// FUNCIONES GAMEPLAY//
+// PROTOTIPOS DE FUNCIONES //
+void must_init (bool test, const char *descrpcion);
 bounding_box set_bounding (float ulx, float uly, float  drx, float dry);
+void init_stars (Star stars[], int ancho, int alto);
+void llenar_mat (bloque mat[ALTO][ANCHO], int nivel);
+void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo);
+void dibujar_powerups(powerup powerups_mat[3]);
+int recuento_bloques(bloque mat[ANCHO][ALTO]);
+void spawn_powerups();
 char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
-void nace (bloque mat[ALTO][ANCHO], int i, int j);
-void muere (bloque mat[ALTO][ANCHO], int i, int j);
-//////////////////////
-
+/////////////////////////////
 #endif
