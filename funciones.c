@@ -44,7 +44,7 @@ void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 }
 
 
-void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo) {
+void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo, ALLEGRO_BITMAP* sprite, bool estado_bomba) {
 	int i,j;
 	ALLEGRO_COLOR color_bloque;
 	for (i = 0; i < ALTO; i++) {                                    
@@ -63,9 +63,18 @@ void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, 
 			}
 		}
 	}
-	float radio = ((2.5*(float)dispAncho)/255);
 	al_draw_filled_rectangle(plat.ulx, plat.uly, plat.drx, plat.dry, color); //dibuja la plataforma
-	al_draw_filled_circle(ball.x,ball.y+2*radio,radio,color); //dibuja la pelota
+	float radio = ((2.5*(float)dispAncho)/255);
+	
+	if(estado_bomba) {
+		int w = al_get_bitmap_width(sprite);
+		int h = al_get_bitmap_height(sprite);
+		float bomb_size = radio * 2.5;
+		al_draw_scaled_bitmap(sprite, 0, 0, w, h, ball.x - (bomb_size/2), ball.y - (bomb_size/2), bomb_size, bomb_size, 0);
+	}
+	else {
+		al_draw_filled_circle(ball.x,ball.y+2*radio,radio,color); //dibuja la pelota
+	}	
 }
 
 
@@ -85,6 +94,7 @@ void dibujar_powerups(powerup powerups_mat[3]) {
 			al_draw_circle(cx, cy, radio, al_map_rgb(255, 255, 255), 2);
 		}
 	}
+	
 }
 
 

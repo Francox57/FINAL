@@ -87,7 +87,7 @@ void must_init (bool test, const char *descrpcion);
 bounding_box set_bounding (float ulx, float uly, float  drx, float dry);
 void init_stars (Star stars[], int ancho, int alto);
 void llenar_mat (bloque mat[ALTO][ANCHO], int nivel);
-void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo);
+void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo, ALLEGRO_BITMAP* sprite, bool estado_bomba);
 void dibujar_powerups(powerup powerups_mat[3]);
 int recuento_bloques(bloque mat[ANCHO][ALTO]);
 void spawn_powerups();

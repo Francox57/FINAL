@@ -10,6 +10,7 @@ int main() {
 	must_init(al_init(), "allegro"); // Cada must_init verifica que se haya inicializado cada cosa
 	must_init(al_install_keyboard(), "keyboard");
 	must_init(al_init_primitives_addon(), "primitivas");
+	must_init(al_init_image_addon(), "imagenes");
 	must_init(al_install_mouse(), "mouse");
 	must_init(al_install_audio(), "audio");
 	must_init(al_init_acodec_addon(), "audio codecs");
@@ -28,6 +29,7 @@ int main() {
 	ALLEGRO_FONT *font = al_load_ttf_font("resources/OpenSans.ttf", 15, 0); // fuente
 	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf",30, 0);
 	ALLEGRO_MOUSE_STATE mouse;
+	ALLEGRO_BITMAP *imagen_bomba = al_load_bitmap("resources/bombita.png");
 	
 	must_init(disp, "display"); // se verifica que estos punteros se hayan inicializado correctamente
 	must_init(timer, "timer");
@@ -35,6 +37,7 @@ int main() {
 	must_init(font, "font");
 	must_init(gameoverfont, "font");
 	must_init(music, "music");
+	must_init(imagen_bomba, "imagen de la bomba");
 	/////////////////////////////////
 	
 	///////////// VARIABLES /////////////////
@@ -51,6 +54,7 @@ int main() {
 	bool super_romper = false;  // Truco de la tecla 3 (Romper de una)
 	bool aumento = false;
 	bool bloq_tit = false;
+	bool estado_bomba = false;
 	float hit;
 	float anchorect;
 	float anchoplat;
@@ -364,7 +368,14 @@ int main() {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
 										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
-									} else {
+									} 
+									else if (estado_bomba) {
+										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+										estado_bomba = false;
+										powerups_mat[2].state = POWERUP_INACTIVE; 
+										
+									}
+									else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
 									}
 								}
@@ -378,7 +389,14 @@ int main() {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
 										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
-									} else {
+									} 
+									else if (estado_bomba) {
+										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+										estado_bomba = false;
+										powerups_mat[2].state = POWERUP_INACTIVE;
+									}
+									
+									else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
 									}
 								}
@@ -392,7 +410,14 @@ int main() {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
 										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
-									} else {
+									} 
+									else if (estado_bomba) {
+										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+										estado_bomba = false;
+										powerups_mat[2].state = POWERUP_INACTIVE;
+									}
+									
+									else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
 									}
 								}
@@ -511,7 +536,7 @@ int main() {
 					}
 
 					if (powerups_mat[2].state == POWERUP_ACTIVE) {
-						
+						estado_bomba = true;
 					}
 					
 					
@@ -836,7 +861,7 @@ int main() {
 
 					if (wider_timer >= 300 && !bloq_tit) {
 						dibujar_all(disAlto, disAncho, lado, al_map_rgb(255,0,0), platform.bounding, ball1, mat,
-						themeslist[contador].color_pantalla);
+						themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
 						titileo++;
 						if (titileo == 20) {
 							bloq_tit = true;
@@ -844,7 +869,7 @@ int main() {
 					}
 					else {
 						dibujar_all(disAlto, disAncho, lado, themeslist[contador].color_lineas, platform.bounding, ball1, mat,
-						themeslist[contador].color_pantalla);
+						themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
 						if (titileo >= 0) { // para evitar que la variable tome valores negativos. tarda mas ciclos en titilar
 							titileo--;
 							if (titileo == 0) {
@@ -1011,6 +1036,7 @@ int main() {
 	printf("Destruyendo la musica...\n");
 	al_destroy_audio_stream(music);
 	printf("Destruyendo imagen...\n");
+	al_destroy_bitmap(imagen_bomba);
 	return 0;
 }
 
