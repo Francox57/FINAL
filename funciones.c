@@ -1,9 +1,27 @@
 #include "funciones.h"
 
-void mat_copia(bloque copia[3][3], int i, int j); // Funcion que copia a la matriz referencia en un 3x3
-void nace (bloque mat[ALTO][ANCHO], int i, int j); //Funcion que crea nuevos bloques
-void muere (bloque mat[ALTO][ANCHO], int i, int j); //Funcion que mata las anteriores
-void print_mat (bloque mat[ALTO][ANCHO]); //Funcion para imprimir la matriz
+
+void must_init(bool test, const char *descripcion) { // verifica que el argumento inicie bien
+	if(test) return; // si se inicializo bien deja seguir el programa
+	printf("No se pudo inicializar %s\n", descripcion);
+	exit(1); // si falla, cierra el programa y avisa que cosa fallo
+}
+
+
+bounding_box set_bounding(float ulx ,float uly ,float  drx ,float dry) {
+	bounding_box hitbox  = {ulx,uly,drx,dry};
+	return hitbox;
+}
+
+
+void init_stars(Star stars[], int ancho, int alto) {
+	for (int i = 0; i < MAX_STARS; i++) {
+		stars[i].x = rand() % ancho;
+		stars[i].y = rand() % alto;
+		stars[i].velocidad = (rand() % 5) + 1;
+		stars[i].tamano = (rand() % 3) + 1;
+	}
+}
 
 
 void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
@@ -17,71 +35,16 @@ void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 			mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
 			if (mat[i][j].cant_impactos_actual > 0) {
 				mat[i][j].estado = true;
-				switch (mat[i][j].cant_impactos_actual) {
-					case 1:
-				}
 			}
 			if (mat[i][j].cant_impactos_actual == 0) {
 				mat[i][j].estado = false;
 			}
 		}
-	}
-	
+	}	
 }
 
 
-void nace (bloque mat[ALTO][ANCHO], int i, int j) {
-	mat[i][j].estado = true;
-}
-
-
-void muere (bloque mat[ALTO][ANCHO], int i, int j) {
-	mat[i][j].estado = false;
-}
-
-
-void print_mat (bloque mat[ALTO][ANCHO]) { //Funcion para imprimir matriz
-	int i,j;  // Valor de fila y columna
-	int cont = 0;  // Inicio un contador que va a tener el valor de los indices en 0
-	printf("|^_^|");
-	while (cont<ANCHO) {  // Imprime una linea con los valores de las celdas
-		printf("%2d |", cont);
-		cont++;
-	}
-	putchar('\n');
-	cont = 0;
-	for (i=0;i<ALTO;i++) {
-		putchar('|');
-		printf("%2d |", cont);  //Imprime una fila con los valores de las celdas
-		cont++;
-		for (j=0;j<ANCHO;j++) {
-			printf(" %d |", mat[i][j].estado);  //Imprime el caracter de vivo o muerto
-		}
-		putchar('\n');
-	}
-}
-
-int recuento_bloques(bloque mat[ANCHO][ALTO]) {
-	int vivos = 0;
-	for (int i = 0 ; i < ALTO ; i++) {
-		for (int j = 0 ; j < ANCHO ; j++) {
-			if (mat[i][j].estado && mat[i][j].cant_impactos_actual > 0) {
-				vivos++;
-			}
-		}
-	}
-	return vivos;
-}
-
-// FUNCIONES CON ALLEGRO //
-void must_init(bool test, const char *descripcion) {  // Se asegura que todo se inicialize bien
-	if(test) return; // Si se inicializo bien deja seguir el programa
-	printf("No se pudo inicializar %s\n", descripcion);
-	exit(1); // Si no se sale del programa y avisa cual no se inicializo correctamente
-}
-
-
-void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo) { // Dibuja las filas y columnas calculando el offset
+void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo, ALLEGRO_BITMAP* sprite, bool estado_bomba) {
 	int i,j;
 	ALLEGRO_COLOR color_bloque;
 	for (i = 0; i < ALTO; i++) {                                    
@@ -100,30 +63,64 @@ void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, 
 			}
 		}
 	}
-	float radio = ((2.5*(float)dispAncho)/255);
 	al_draw_filled_rectangle(plat.ulx, plat.uly, plat.drx, plat.dry, color); //dibuja la plataforma
-	al_draw_filled_circle(ball.x,ball.y+2*radio,radio,color); //dibuja la pelota
-	//al_draw_rectangle(ball.bounding.ulx,ball.bounding.uly,ball.bounding.drx,ball.bounding.dry,al_map_rgb(255, 92, 194),1);
-	//al_draw_rectangle(plat.ulx,plat.uly,plat.drx,plat.dry,al_map_rgb(255, 92, 194),1); //dibujan las hitboxes de ambos elementos
+	float radio = ((2.5*(float)dispAncho)/255);
+	
+	if(estado_bomba) {
+		int w = al_get_bitmap_width(sprite);
+		int h = al_get_bitmap_height(sprite);
+		float bomb_size = radio * 2.5;
+		al_draw_scaled_bitmap(sprite, 0, 0, w, h, ball.x - (bomb_size/2), ball.y - (bomb_size/2), bomb_size, bomb_size, 0);
+	}
+	else {
+		al_draw_filled_circle(ball.x,ball.y+2*radio,radio,color); //dibuja la pelota
+	}	
 }
 
 
-bounding_box set_bounding(float ulx ,float uly ,float  drx ,float dry) {
-	bounding_box hitbox  = {ulx,uly,drx,dry};
-	return hitbox;
+void dibujar_powerups(powerup powerups_mat[3]) {
+	for (int i = 0 ; i < 3 ; i++) {
+		if (powerups_mat[i].state == POWERUP_FALLING) {
+			ALLEGRO_COLOR color_powerup;
+			switch (i) {
+				case 0: color_powerup = al_map_rgb(0, 255, 0); break;
+				case 1: color_powerup = al_map_rgb(0, 0, 255); break;
+				default: color_powerup = al_map_rgb(255, 0, 0); break;
+			}
+			float radio = (powerups_mat[i].bounding.drx - powerups_mat[i].bounding.ulx) / 2.0;
+			float cx = powerups_mat[i].bounding.ulx + radio;
+			float cy = powerups_mat[i].bounding.uly + radio;
+			al_draw_filled_circle(cx, cy, radio, color_powerup);
+			al_draw_circle(cx, cy, radio, al_map_rgb(255, 255, 255), 2);
+		}
+	}
+	
+}
+
+
+int recuento_bloques(bloque mat[ANCHO][ALTO]) {
+	int vivos = 0;
+	for (int i = 0 ; i < ALTO ; i++) {
+		for (int j = 0 ; j < ANCHO ; j++) {
+			if (mat[i][j].estado && mat[i][j].cant_impactos_actual > 0) {
+				vivos++;
+			}
+		}
+	}
+	return vivos;
 }
 
 
 char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
 
-	// situaciones en las que los dos cuerpos no chocan entre si //
+	// situaciones en las que los dos cuerpos no chocan entre si
 	if(ax1 >= bx2) return 0;
 	if(ax2 <= bx1) return 0;
 	if(ay1 >= by2) return 0;
 	if(ay2 <= by1) return 0;
 	   
-	float overlapX = (ax2 < bx2 ? ax2 : bx2) - (ax1 > bx1 ? ax1 : bx1); // se fija por donde penetro mas si verticalmente u horizontalmente 
-	float overlapY = (ay2 < by2 ? ay2 : by2) - (ay1 > by1 ? ay1 : by1);
+	float overlapX = (ax2 < bx2 ? ax2 : bx2) - (ax1 > bx1 ? ax1 : bx1); // se fija en que direccion 
+	float overlapY = (ay2 < by2 ? ay2 : by2) - (ay1 > by1 ? ay1 : by1); // colisiono mas
 	if (overlapX < overlapY) { // en caso de que sea vertical
 		return -1;
 	}
@@ -134,4 +131,3 @@ char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int
 		return 2;
 	}
 }
-///////////////////////////
