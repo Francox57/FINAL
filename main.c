@@ -23,8 +23,7 @@ int main() {
 	ALLEGRO_DISPLAY *disp = al_create_display(disAncho, disAlto); // Puntero que representa al display
 	ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0); // Timer
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue(); // queue
-	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream(
-			"resources/proper_summer.flac", 2, 2048); // musica
+	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream("resources/proper_summer.flac", 2, 2048); // musica
 	ALLEGRO_FONT *font = al_load_ttf_font("resources/OpenSans.ttf", 15, 0); // fuente
 	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf",
 			30, 0);
@@ -757,11 +756,11 @@ int main() {
 				disAncho -= 10; // decrementa ancho del display
 				redraw = true;
 			}
-			if (disAlto < 500) { // impide que el display sea muy pequeño para que las letras entren
-				disAlto = 500;
+			if (disAlto < 550) { // impide que el display sea muy pequeño para que las letras entren
+				disAlto = 550;
 			}
-			if (disAncho < 500) { // impide que el display sea muy pequeño para que las letras entren
-				disAncho = 500;
+			if (disAncho < 550) { // impide que el display sea muy pequeño para que las letras entren
+				disAncho = 550;
 			}
 			al_resize_display(disp, disAncho, disAlto); // Cambia tamaño de pantalla
 			al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla para que no se escriba texto por encima
