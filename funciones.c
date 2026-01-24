@@ -17,6 +17,9 @@ void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 			mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
 			if (mat[i][j].cant_impactos_actual > 0) {
 				mat[i][j].estado = true;
+				switch (mat[i][j].cant_impactos_actual) {
+					case 1:
+				}
 			}
 			if (mat[i][j].cant_impactos_actual == 0) {
 				mat[i][j].estado = false;
@@ -80,17 +83,18 @@ void must_init(bool test, const char *descripcion) {  // Se asegura que todo se 
 
 void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo) { // Dibuja las filas y columnas calculando el offset
 	int i,j;
-	for (i = 0; i < ALTO; i++) { // Recorre que tan ancho es la matriz
-		ALLEGRO_COLOR color_bloque;                                    
-		switch(i % 5) {
-			case 0: color_bloque = al_map_rgb(255, 0, 0); break;     // Rojo (Boss Galaga)
-			case 1: color_bloque = al_map_rgb(224, 0, 224); break;   // Purpura (Zako)
-			case 2: color_bloque = al_map_rgb(224, 224, 0); break;   // Amarillo (Abeja)
-			case 3: color_bloque = al_map_rgb(0, 100, 255); break;   // Azul Arcade (Escorpion)
-			default: color_bloque = al_map_rgb(0, 224, 0); break;    // Verde (Spy)
-		}
+	ALLEGRO_COLOR color_bloque;
+	for (i = 0; i < ALTO; i++) {                                    
 		for (j = 0; j < ANCHO; j++) {     
 			if (mat[i][j].estado == true) {
+				switch (mat[i][j].cant_impactos_actual) {
+					case 1: color_bloque = al_map_rgb(0, 224, 0); break; // verde
+					case 2: color_bloque = al_map_rgb(224, 224, 0); break; // amarillo
+					case 3: color_bloque = al_map_rgb(0, 100, 255); break; // azul
+					case 4: color_bloque = al_map_rgb(224, 0, 224); break; // violeta
+					case 5: color_bloque = al_map_rgb(255, 0, 0); break; // rojo
+					default: color_bloque = al_map_rgb(128, 128, 128); break; // gris
+				}
 				al_draw_filled_rectangle(mat[i][j].bounding.ulx, mat[i][j].bounding.uly, mat[i][j].bounding.drx, mat[i][j].bounding.dry, color_bloque);
 				al_draw_rectangle(mat[i][j].bounding.ulx, mat[i][j].bounding.uly, mat[i][j].bounding.drx, mat[i][j].bounding.dry, color_fondo,2);         
 			}
@@ -131,8 +135,3 @@ char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int
 	}
 }
 ///////////////////////////
-
-
-
-
-
