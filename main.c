@@ -49,6 +49,8 @@ int main() {
 	bool nivel_ganado = false;
 	bool modo_demo = false;     // Activa los trucos
 	bool super_romper = false;  // Truco de la tecla 3 (Romper de una)
+	bool aumento = false;
+	bool bloq_tit = false;
 	float hit;
 	float anchorect;
 	float anchoplat;
@@ -61,6 +63,8 @@ int main() {
 	int dice = 3;
 	int nivel = 0;
 	int bloques_vivos = 0;
+	int wider_timer = 0;
+	int titileo = 0;
 	char vidas = 3;
 	
 	// variables galaga //
@@ -143,6 +147,7 @@ int main() {
 	
 	while (!cerrar) {
 		al_get_mouse_state(&mouse);
+		
 		// se sigue en el menu principal //
 		if (!fuera_mainmenu && !ball1.vx && !ball1.vy) {
 			lado = (disAlto / 2) / ALTO; // cuanto mide los lados verticales de las casillas
@@ -245,7 +250,7 @@ int main() {
 									ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 						}
 					}
-				} else if (fuera_mainmenu && !menu_opciones) { // el usuario inicio salio de todos los menus
+				} else if (fuera_mainmenu && !menu_opciones) { // el usuario salio de todos los menus
 					if (pausa) {
 						for (int i = 0; i < 3; i++) {
 							if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
@@ -485,10 +490,31 @@ int main() {
 					}
 					
 					if (powerups_mat[0].state == POWERUP_ACTIVE) {
-						vidas += 1;
+						vidas++;
 						powerups_mat[0].state = POWERUP_INACTIVE;
 					}
+					
+					if (powerups_mat[1].state == POWERUP_ACTIVE) {
+						wider_timer++;
+						if (!aumento) {
+							platform.bounding.ulx -= 20;
+							platform.bounding.drx += 20;
+							aumento = true;
+						}
+						if (wider_timer == 480) {
+							powerups_mat[1].state = POWERUP_INACTIVE;
+							platform.bounding.ulx += 20;
+							platform.bounding.drx -= 20;
+							aumento = false;
+							wider_timer = 0;
+						}
+					}
 
+					if (powerups_mat[2].state == POWERUP_ACTIVE) {
+						
+					}
+					
+					
 					if (vidas == 0) {
 						game_over = true;
 						nivel = 0;
@@ -808,10 +834,24 @@ int main() {
 					// --- DIBUJAR JUEGO NORMAL ---
 					al_clear_to_color(themeslist[contador].color_pantalla);
 
-					dibujar_all(disAlto, disAncho, lado,
-							themeslist[contador].color_lineas,
-							platform.bounding, ball1, mat,
-							themeslist[contador].color_pantalla);
+					if (wider_timer >= 300 && !bloq_tit) {
+						dibujar_all(disAlto, disAncho, lado, al_map_rgb(255,0,0), platform.bounding, ball1, mat,
+						themeslist[contador].color_pantalla);
+						titileo++;
+						if (titileo == 20) {
+							bloq_tit = true;
+						}
+					}
+					else {
+						dibujar_all(disAlto, disAncho, lado, themeslist[contador].color_lineas, platform.bounding, ball1, mat,
+						themeslist[contador].color_pantalla);
+						if (titileo >= 0) { // para evitar que la variable tome valores negativos. tarda mas ciclos en titilar
+							titileo--;
+							if (titileo == 0) {
+								bloq_tit = false;
+							}
+						}
+					}
 							
 					dibujar_powerups(powerups_mat);
 
