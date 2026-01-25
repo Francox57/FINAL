@@ -26,21 +26,36 @@ void init_stars(Star stars[], int ancho, int alto) {
 
 void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 	int i,j;
-	if (nivel > 3) { // el usuario gano el juego
-		return;
-	}
-	for (i = 0 ; i < ALTO ; i++) {
-		for (j = 0 ; j < ANCHO ; j++) {
-			mat[i][j].cant_impactos_total = mapas_niveles[nivel][i][j];
-			mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
-			if (mat[i][j].cant_impactos_actual > 0) {
-				mat[i][j].estado = true;
-			}
-			if (mat[i][j].cant_impactos_actual == 0) {
-				mat[i][j].estado = false;
+	srand(time(NULL));
+	printf("%d",nivel);
+	if (nivel > 2) {
+		for (i = 0 ; i < ALTO ; i++) {
+			for (j = 0 ; j < ANCHO ; j++) {
+				mat[i][j].cant_impactos_total = (rand() % 5)+1;
+				mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
+				if (mat[i][j].cant_impactos_actual > 0) {
+					mat[i][j].estado = true;
+				}
+				if (mat[i][j].cant_impactos_actual == 0) {
+					mat[i][j].estado = false;
+				}
 			}
 		}
-	}	
+		return;
+	}else{
+		for (i = 0 ; i < ALTO ; i++) {
+			for (j = 0 ; j < ANCHO ; j++) {
+				mat[i][j].cant_impactos_total = mapas_niveles[nivel][i][j];
+				mat[i][j].cant_impactos_actual = mat[i][j].cant_impactos_total;
+				if (mat[i][j].cant_impactos_actual > 0) {
+					mat[i][j].estado = true;
+				}
+				if (mat[i][j].cant_impactos_actual == 0) {
+					mat[i][j].estado = false;
+				}
+			}
+		}
+	}
 }
 
 

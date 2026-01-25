@@ -69,6 +69,7 @@ int main() {
 	int bloques_vivos = 0;
 	int wider_timer = 0;
 	int titileo = 0;
+	int radio_explo = 1;
 	char vidas = 3;
 	
 	// variables galaga //
@@ -367,10 +368,28 @@ int main() {
 							if (collision_wb == -1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
+
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													mat[ni][nj].cant_impactos_actual = 0;
+												}
+											}
+										}
 									} 
 									else if (estado_bomba) {
-										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
+
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													--mat[ni][nj].cant_impactos_actual;
+												}
+											}
+										}
 										estado_bomba = false;
 										powerups_mat[2].state = POWERUP_INACTIVE; 
 										
@@ -388,10 +407,28 @@ int main() {
 							} else if (collision_wb == 1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
+									for (int di = -radio_explo; di <= radio_explo; di++) {
+										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+											int ni = i + di;
+											int nj = j + dj;
+
+											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+												mat[ni][nj].cant_impactos_actual = 0;
+											}
+										}
+									}
 									} 
 									else if (estado_bomba) {
-										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+									for (int di = -radio_explo; di <= radio_explo; di++) {
+										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+											int ni = i + di;
+											int nj = j + dj;
+
+											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+												--mat[ni][nj].cant_impactos_actual;
+											}
+										}
+									}
 										estado_bomba = false;
 										powerups_mat[2].state = POWERUP_INACTIVE;
 									}
@@ -409,10 +446,30 @@ int main() {
 							} else if (collision_wb == 2) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										mat[i][j].cant_impactos_actual = 0; // MUERE INSTANTANEAMENTE
+									for (int di = -radio_explo; di <= radio_explo; di++) {
+										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+											int ni = i + di;
+											int nj = j + dj;
+
+											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+												mat[ni][nj].cant_impactos_actual = 0;
+											}
+										}
+									}
 									} 
 									else if (estado_bomba) {
-										mat[i][j].cant_impactos_actual = 0; // la explosion mata al bloque
+									
+									for (int di = -radio_explo; di <= radio_explo; di++) {
+										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+											int ni = i + di;
+											int nj = j + dj;
+
+											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+												--mat[ni][nj].cant_impactos_actual;
+											}
+										}
+									}
+																
 										estado_bomba = false;
 										powerups_mat[2].state = POWERUP_INACTIVE;
 									}
@@ -432,7 +489,7 @@ int main() {
 							if (mat[i][j].cant_impactos_actual < 1 && mat[i][j].estado) {
 								mat[i][j].estado = false;
 								for (int k = 0; k < 3; k++) {
-									if (dice == rand() % 10 && powerups_mat[k].state == POWERUP_INACTIVE) { // solo puede haber un powerup del mismo tipo en pantalla
+									if (!(dice = rand() % 15) && powerups_mat[k].state == POWERUP_INACTIVE) { // solo puede haber un powerup del mismo tipo en pantalla
 										powerups_mat[k].state = POWERUP_FALLING;
 										powerups_mat[k].bounding = set_bounding(mat[i][j].bounding.ulx + anchorect / 4, mat[i][j].bounding.uly,
 										mat[i][j].bounding.drx - anchorect / 4, mat[i][j].bounding.dry);
@@ -458,9 +515,34 @@ int main() {
 					if (nivel_ganado) {
 						nivel++;
 						if (nivel >= 3) {
-							game_over = true;
+							llenar_mat(mat, nivel);
+
+							// Resetear posiciones (Tu código de siempre)
+							ball1.vx = 0;
+							ball1.vy = 0;
+							ball1.x = (float) disAncho / 2;
+							ball1.y = disAlto
+									- ((disAlto - ((float) disAlto * 0.90))
+											+ (6 * anchorect) / 32);
+							ball1.bounding = set_bounding(ball1.x - radio,
+									ball1.y - radio, ball1.x + radio,
+									ball1.y + radio);
+							platform.bounding = set_bounding(
+									((float) disAncho / 2) - 2.5 * anchoplat,
+									disAlto
+											- (disAlto
+													- ((float) disAlto * 0.90)),
+									((float) disAncho / 2) + 2.5 * anchoplat,
+									disAlto
+											- (disAlto
+													- ((float) disAlto * 0.895)
+													- 16));
+
+							// --- ACTIVAR MODO GALAGA ---
 							nivel_ganado = false;
-							nivel = 0;
+							en_transicion = true;  // ¡Aquí empieza la magia!
+							frames_transicion = 0;
+							init_stars(stars, disAncho, disAlto);
 						} else {
 							llenar_mat(mat, nivel);
 
