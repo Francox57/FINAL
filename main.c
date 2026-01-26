@@ -1,5 +1,6 @@
 #include "funciones.h"
 
+
 int main() {
 	srand(time(NULL)); // semilla random para la funcion rand()
 	bloque mat[ALTO][ANCHO]; // matriz principal
@@ -17,20 +18,33 @@ int main() {
 	must_init(al_reserve_samples(16), "reserve samples");
 	must_init(al_init_ttf_addon(), "TTF");
 	////////////////////////////////
-	
+
 	// INICIALIZACION DE VARIABLES ALLEGRO //
 	int disAlto = 720; // Alto de la pantalla
 	int disAncho = 720; // Ancho de la pantalla
-	
+
 	ALLEGRO_DISPLAY *disp = al_create_display(disAncho, disAlto); // Puntero que representa al display
 	ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0); // Timer
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue(); // queue
-	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream("resources/proper_summer.flac", 2, 2048); // musica
+	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream(
+			"resources/proper_summer.flac", 2, 2048); // musica
 	ALLEGRO_FONT *font = al_load_ttf_font("resources/OpenSans.ttf", 15, 0); // fuente
-	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf",30, 0);
+	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf",
+			30, 0);
 	ALLEGRO_MOUSE_STATE mouse;
 	ALLEGRO_BITMAP *imagen_bomba = al_load_bitmap("resources/bombita.png");
-	
+	ALLEGRO_SAMPLE *sonido_nave = al_load_sample("resources/rebote.wav");
+	ALLEGRO_SAMPLE *sonido_choque = al_load_sample("resources/choque.wav");
+	ALLEGRO_SAMPLE *sonido_explosion = al_load_sample(
+			"resources/explosion.wav");
+	ALLEGRO_SAMPLE *sonido_vida = al_load_sample("resources/power1.wav");
+	ALLEGRO_SAMPLE *sonido_azul = al_load_sample("resources/power2.wav");
+	ALLEGRO_SAMPLE *sonido_rojo = al_load_sample("resources/power3.wav");
+	ALLEGRO_SAMPLE *sonido_nivel = al_load_sample("resources/nivel.wav");
+	ALLEGRO_SAMPLE *sonido_menos = al_load_sample("resources/menos.wav");
+	ALLEGRO_SAMPLE *sonido_over = al_load_sample("resources/over.wav");
+	ALLEGRO_SAMPLE *sonido_nobarra = al_load_sample("resources/nobarra.wav");
+
 	must_init(disp, "display"); // se verifica que estos punteros se hayan inicializado correctamente
 	must_init(timer, "timer");
 	must_init(queue, "queue");
@@ -39,7 +53,7 @@ int main() {
 	must_init(music, "music");
 	must_init(imagen_bomba, "imagen de la bomba");
 	/////////////////////////////////
-	
+
 	///////////// VARIABLES /////////////////
 	bool key_left = false;
 	bool key_right = false;
@@ -55,6 +69,7 @@ int main() {
 	bool aumento = false;
 	bool bloq_tit = false;
 	bool estado_bomba = false;
+	bool animacion_go_hecha = false;
 	float hit;
 	float anchorect;
 	float anchoplat;
@@ -71,13 +86,13 @@ int main() {
 	int titileo = 0;
 	int radio_explo = 1;
 	char vidas = 3;
-	
+
 	// variables galaga //
 	Star stars[MAX_STARS];
 	bool en_transicion = false;
 	int frames_transicion = 0;
 	init_stars(stars, disAncho, disAlto);
-	
+
 	ALLEGRO_COLOR galaga_red = al_map_rgb(255, 0, 0);
 	ALLEGRO_COLOR galaga_white = al_map_rgb(255, 255, 255);
 	ALLEGRO_COLOR galaga_yellow = al_map_rgb(222, 222, 0);
@@ -93,7 +108,7 @@ int main() {
 	ball1.dy = 5;
 	ball1.vx = 0;
 	ball1.vy = 0;
-	
+
 	matriz_menu[0].texto = "JUGAR";
 	matriz_menu[1].texto = "OPCIONES";
 	matriz_menu[2].texto = "SALIR";
@@ -107,21 +122,20 @@ int main() {
 	matriz_pausa[0].texto = "REANUDAR";
 	matriz_pausa[1].texto = "REINICIAR";
 	matriz_pausa[2].texto = "VOLVER A MENU";
-	
-	
+
 	powerup extra_life;
-	extra_life.bounding = set_bounding(0,0,0,0);
+	extra_life.bounding = set_bounding(0, 0, 0, 0);
 	extra_life.state = POWERUP_INACTIVE;
-	
+
 	powerup wider_platform;
-	wider_platform.bounding = set_bounding(0,0,0,0);
+	wider_platform.bounding = set_bounding(0, 0, 0, 0);
 	wider_platform.state = POWERUP_INACTIVE;
-	
+
 	powerup bomb;
-	bomb.bounding = set_bounding(0,0,0,0);
+	bomb.bounding = set_bounding(0, 0, 0, 0);
 	bomb.state = POWERUP_INACTIVE;
-	
-	powerup powerups_mat[3] = {extra_life, wider_platform, bomb};
+
+	powerup powerups_mat[3] = { extra_life, wider_platform, bomb };
 	//////////////////////////////////////////////
 
 	// OPCIONES DE COLORES PARA EL JUEGO //
@@ -148,11 +162,9 @@ int main() {
 
 	al_start_timer(timer); // empieza el timer
 
-	
-	
 	while (!cerrar) {
 		al_get_mouse_state(&mouse);
-		
+
 		// se sigue en el menu principal //
 		if (!fuera_mainmenu && !ball1.vx && !ball1.vy) {
 			lado = (disAlto / 2) / ALTO; // cuanto mide los lados verticales de las casillas
@@ -160,11 +172,13 @@ int main() {
 			anchorect = (float) disAncho / ANCHO;
 			anchoplat = (float) disAncho / 22;
 			ball1.x = (float) disAncho / 2;
-			ball1.y = disAlto - ((disAlto - ((float) disAlto * 0.90))
-				+ (6 * anchorect) / 32);
+			ball1.y = disAlto
+					- ((disAlto - ((float) disAlto * 0.90))
+							+ (6 * anchorect) / 32);
 			ball1.bounding = set_bounding(ball1.x - radio, (ball1.y - radio),
 					ball1.x + radio, (ball1.y + radio));
-			platform.bounding = set_bounding(((float) disAncho / 2) - 2.5 * anchoplat,
+			platform.bounding = set_bounding(
+					((float) disAncho / 2) - 2.5 * anchoplat,
 					disAlto - (disAlto - ((float) disAlto * 0.9)),
 					((float) disAncho / 2) + 2.5 * anchoplat,
 					disAlto - (disAlto - ((float) disAlto * 0.895) - 16)); // 2.5 COEFICIENTE DE TAMAÑO
@@ -228,27 +242,31 @@ int main() {
 					en_transicion = false;
 				}
 				redraw = true;
-			}
-			else {
+			} else {
 				if (!fuera_mainmenu && !menu_opciones) { // el usuario esta en la pantalla inicial de la app
 					for (int i = 0; i < 3; i++) {
-						if (collide(mouse.x, mouse.y, mouse.x, mouse.y, matriz_menu[i].bounding.ulx,
-						matriz_menu[i].bounding.uly, matriz_menu[i].bounding.drx,
-						matriz_menu[i].bounding.dry)) {
+						if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
+								matriz_menu[i].bounding.ulx,
+								matriz_menu[i].bounding.uly,
+								matriz_menu[i].bounding.drx,
+								matriz_menu[i].bounding.dry)) {
 							al_set_system_mouse_cursor(disp,
-							ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+									ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 							break;
-						}
-						else {
-							al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+						} else {
+							al_set_system_mouse_cursor(disp,
+									ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 						}
 					}
 				} else if (menu_opciones) { // el usuario esta en la parte de opciones
 					for (int i = 4; i <= 8; i++) {
-						if (collide(mouse.x, mouse.y, mouse.x, mouse.y, matriz_menu[i].bounding.ulx,
-						matriz_menu[i].bounding.uly, matriz_menu[i].bounding.drx,
-						matriz_menu[i].bounding.dry)) {
-							al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+						if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
+								matriz_menu[i].bounding.ulx,
+								matriz_menu[i].bounding.uly,
+								matriz_menu[i].bounding.drx,
+								matriz_menu[i].bounding.dry)) {
+							al_set_system_mouse_cursor(disp,
+									ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 							break;
 						} else {
 							al_set_system_mouse_cursor(disp,
@@ -259,10 +277,12 @@ int main() {
 					if (pausa) {
 						for (int i = 0; i < 3; i++) {
 							if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
-							matriz_pausa[i].bounding.ulx, matriz_pausa[i].bounding.uly,
-							matriz_pausa[i].bounding.drx, matriz_pausa[i].bounding.dry)) {
+									matriz_pausa[i].bounding.ulx,
+									matriz_pausa[i].bounding.uly,
+									matriz_pausa[i].bounding.drx,
+									matriz_pausa[i].bounding.dry)) {
 								al_set_system_mouse_cursor(disp,
-								ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+										ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 								break;
 							} else {
 								al_set_system_mouse_cursor(disp,
@@ -270,7 +290,8 @@ int main() {
 							}
 						}
 					} else {
-						al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+						al_set_system_mouse_cursor(disp,
+								ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 					}
 				}
 				if (fuera_mainmenu && !pausa && !menu_opciones) { // el usuario empezo a jugar
@@ -336,6 +357,31 @@ int main() {
 										- (disAlto - ((float) disAlto * 0.895)
 												- 16));
 						vidas--;
+						if (vidas >= 1) {
+							// Si me quedan vidas, suena el "auch"
+							al_play_sample(sonido_menos, 1.0, 0.0, 1.0,
+									ALLEGRO_PLAYMODE_ONCE, NULL);
+						} else {
+							// Es la ultima vida, quizas aqui va otro sonido de GAME OVER final
+							// o dejas el mismo, como prefieras.
+							if (vidas < 1) {
+
+								// --- NUEVO: ANIMACION ---
+								if (!animacion_go_hecha) {
+									al_play_sample(sonido_over, 1.0, 0.0, 1.0,
+											ALLEGRO_PLAYMODE_ONCE, NULL);
+									animacion_game_over_fade(gameoverfont,
+											puntaje, disAncho, disAlto);
+									animacion_go_hecha = true; // Marcamos que ya se hizo para no repetirla
+
+									// Opcional: Limpiar la cola de eventos para que clicks viejos no cuenten
+									al_flush_event_queue(queue);
+								}
+								// ------------------------
+
+								// ... aqui sigue tu codigo de botones y mouse ...
+							}
+						}
 					}
 
 					char collision_wp = collide(ball1.bounding.ulx,
@@ -354,6 +400,8 @@ int main() {
 						angulo = (hit - 0.5) * 2.0 * max_angulo;
 						ball1.vx = ball1.dx * sin(DEGTORAD(angulo));
 						ball1.vy = -ball1.dy * cos(DEGTORAD(angulo));
+						al_play_sample(sonido_nave, 1.0, 0.0, 1.0,
+								ALLEGRO_PLAYMODE_ONCE, NULL);
 					}
 
 					bool colisiono = false;
@@ -368,136 +416,202 @@ int main() {
 							if (collision_wb == -1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										for (int di = -radio_explo; di <= radio_explo; di++) {
-											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
 
-												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
-													mat[ni][nj].cant_impactos_actual = 0;
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+													mat[ni][nj].cant_impactos_actual =
+															0;
 												}
 											}
 										}
-									} 
-									else if (estado_bomba) {
-										for (int di = -radio_explo; di <= radio_explo; di++) {
-											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+									} else if (estado_bomba) {
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
 
-												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
 													--mat[ni][nj].cant_impactos_actual;
+													puntaje += 100;
+													al_play_sample(
+															sonido_explosion,
+															1.0, 0.0, 1.0,
+															ALLEGRO_PLAYMODE_ONCE,
+															NULL);
 												}
 											}
 										}
 										estado_bomba = false;
-										powerups_mat[2].state = POWERUP_INACTIVE; 
-										
-									}
-									else {
+										powerups_mat[2].state =
+												POWERUP_INACTIVE;
+
+									} else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
+										puntaje += 100;
+										al_play_sample(sonido_choque, 1.0, 0.0,
+												1.0, ALLEGRO_PLAYMODE_ONCE,
+												NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vx = -ball1.vx;
-									
+
 									colisiono = true;
 								}
 
 							} else if (collision_wb == 1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-									for (int di = -radio_explo; di <= radio_explo; di++) {
-										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
-											int ni = i + di;
-											int nj = j + dj;
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
 
-											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
-												mat[ni][nj].cant_impactos_actual = 0;
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+													mat[ni][nj].cant_impactos_actual =
+															0;
+													puntaje +=
+															(mat[i][j].cant_impactos_actual
+																	* 100); //cambiar si no anda por +-100
+												}
 											}
 										}
-									}
-									} 
-									else if (estado_bomba) {
-									for (int di = -radio_explo; di <= radio_explo; di++) {
-										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
-											int ni = i + di;
-											int nj = j + dj;
+									} else if (estado_bomba) {
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
 
-											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
-												--mat[ni][nj].cant_impactos_actual;
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+													--mat[ni][nj].cant_impactos_actual;
+													puntaje +=
+															(mat[i][j].cant_impactos_actual
+																	* 100); //cambiar si no anda por +-100
+													al_play_sample(
+															sonido_explosion,
+															1.0, 0.0, 1.0,
+															ALLEGRO_PLAYMODE_ONCE,
+															NULL);
+												}
 											}
 										}
-									}
 										estado_bomba = false;
-										powerups_mat[2].state = POWERUP_INACTIVE;
+										powerups_mat[2].state =
+												POWERUP_INACTIVE;
 									}
-									
+
 									else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
+										puntaje += 100;
+										al_play_sample(sonido_choque, 1.0, 0.0,
+												1.0, ALLEGRO_PLAYMODE_ONCE,
+												NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vy = -ball1.vy;
-									
+
 									colisiono = true;
 								}
 
 							} else if (collision_wb == 2) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-									for (int di = -radio_explo; di <= radio_explo; di++) {
-										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
-											int ni = i + di;
-											int nj = j + dj;
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
 
-											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
-												mat[ni][nj].cant_impactos_actual = 0;
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+													mat[ni][nj].cant_impactos_actual =
+															0;
+													puntaje +=
+															(mat[i][j].cant_impactos_actual
+																	* 100); //cambiar si no anda por +-100
+												}
 											}
 										}
-									}
-									} 
-									else if (estado_bomba) {
-									
-									for (int di = -radio_explo; di <= radio_explo; di++) {
-										for (int dj = -radio_explo; dj <= radio_explo; dj++) {
-											int ni = i + di;
-											int nj = j + dj;
+									} else if (estado_bomba) {
 
-											if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
-												--mat[ni][nj].cant_impactos_actual;
+										for (int di = -radio_explo;
+												di <= radio_explo; di++) {
+											for (int dj = -radio_explo;
+													dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
+
+												if (ni
+														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+													--mat[ni][nj].cant_impactos_actual;
+													puntaje += 100;
+													al_play_sample(
+															sonido_explosion,
+															1.0, 0.0, 1.0,
+															ALLEGRO_PLAYMODE_ONCE,
+															NULL);
+												}
 											}
 										}
-									}
-																
+
 										estado_bomba = false;
-										powerups_mat[2].state = POWERUP_INACTIVE;
+										powerups_mat[2].state =
+												POWERUP_INACTIVE;
 									}
-									
+
 									else {
 										--mat[i][j].cant_impactos_actual; // Daño normal
+										puntaje += 100;
+										al_play_sample(sonido_choque, 1.0, 0.0,
+												1.0, ALLEGRO_PLAYMODE_ONCE,
+												NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vy = -ball1.vy;
 									ball1.vx = -ball1.vx;
-									
+
 									colisiono = true;
 
 								}
 							}
-							if (mat[i][j].cant_impactos_actual < 1 && mat[i][j].estado) {
+							if (mat[i][j].cant_impactos_actual < 1
+									&& mat[i][j].estado) {
 								mat[i][j].estado = false;
 								for (int k = 0; k < 3; k++) {
-									if (!(dice = rand() % 15) && powerups_mat[k].state == POWERUP_INACTIVE) { // solo puede haber un powerup del mismo tipo en pantalla
+									if (!(dice = rand() % 15)
+											&& powerups_mat[k].state
+													== POWERUP_INACTIVE) { // solo puede haber un powerup del mismo tipo en pantalla
 										powerups_mat[k].state = POWERUP_FALLING;
-										powerups_mat[k].bounding = set_bounding(mat[i][j].bounding.ulx + anchorect / 4, mat[i][j].bounding.uly,
-										mat[i][j].bounding.drx - anchorect / 4, mat[i][j].bounding.dry);
+										powerups_mat[k].bounding = set_bounding(
+												mat[i][j].bounding.ulx
+														+ anchorect / 4,
+												mat[i][j].bounding.uly,
+												mat[i][j].bounding.drx
+														- anchorect / 4,
+												mat[i][j].bounding.dry);
 										powerups_mat[k].dy = 3;
 										break;
 									}
 								}
-								puntaje += 100;
+								//puntaje += 100;
 							}
 
 						}
@@ -514,6 +628,14 @@ int main() {
 
 					if (nivel_ganado) {
 						nivel++;
+						al_play_sample(sonido_nivel, 1.0, 0.0, 1.0,
+								ALLEGRO_PLAYMODE_ONCE, NULL);
+						if (ball1.dx < 10) {
+							ball1.dx += 0.5;
+							ball1.dy += 0.5;
+						}
+						printf("NIVEL %d ALCANZADO - Nueva velocidad: %f\n",
+								nivel, ball1.dx);
 						if (nivel >= 3) {
 							llenar_mat(mat, nivel);
 
@@ -581,32 +703,41 @@ int main() {
 					ball1.bounding.dry += ball1.vy;
 					ball1.x = ball1.bounding.ulx + radio;
 					ball1.y = ball1.bounding.uly - radio;
-					
-					for (int p = 0 ; p < 3 ; p++) {
+
+					for (int p = 0; p < 3; p++) {
 						if (powerups_mat[p].state == POWERUP_FALLING) {
 							powerups_mat[p].bounding.uly += powerups_mat[p].dy;
 							powerups_mat[p].bounding.dry += powerups_mat[p].dy;
 							if (powerups_mat[p].bounding.uly > disAlto) {
 								powerups_mat[p].state = POWERUP_INACTIVE;
-							}
-							else if (collide(platform.bounding.ulx, platform.bounding.uly, platform.bounding.drx, platform.bounding.dry,
-							powerups_mat[p].bounding.ulx, powerups_mat[p].bounding.uly, powerups_mat[p].bounding.drx, powerups_mat[p].bounding.dry)) {
+							} else if (collide(platform.bounding.ulx,
+									platform.bounding.uly,
+									platform.bounding.drx,
+									platform.bounding.dry,
+									powerups_mat[p].bounding.ulx,
+									powerups_mat[p].bounding.uly,
+									powerups_mat[p].bounding.drx,
+									powerups_mat[p].bounding.dry)) {
 								powerups_mat[p].state = POWERUP_ACTIVE;
 							}
 						}
 					}
-					
+
 					if (powerups_mat[0].state == POWERUP_ACTIVE) {
 						vidas++;
+						al_play_sample(sonido_vida, 1.0, 0.0, 1.0,
+								ALLEGRO_PLAYMODE_ONCE, NULL);
 						powerups_mat[0].state = POWERUP_INACTIVE;
 					}
-					
+
 					if (powerups_mat[1].state == POWERUP_ACTIVE) {
 						wider_timer++;
 						if (!aumento) {
 							platform.bounding.ulx -= 20;
 							platform.bounding.drx += 20;
 							aumento = true;
+							al_play_sample(sonido_azul, 1.0, 0.0, 1.0,
+									ALLEGRO_PLAYMODE_ONCE, NULL);
 						}
 						if (wider_timer == 480) {
 							powerups_mat[1].state = POWERUP_INACTIVE;
@@ -614,14 +745,17 @@ int main() {
 							platform.bounding.drx -= 20;
 							aumento = false;
 							wider_timer = 0;
+							al_play_sample(sonido_nobarra, 1.0, 0.0, 1.0,
+									ALLEGRO_PLAYMODE_ONCE, NULL);
 						}
 					}
 
 					if (powerups_mat[2].state == POWERUP_ACTIVE) {
 						estado_bomba = true;
+						al_play_sample(sonido_rojo, 1.0, 0.0, 1.0,
+								ALLEGRO_PLAYMODE_ONCE, NULL);
 					}
-					
-					
+
 					if (vidas == 0) {
 						game_over = true;
 						nivel = 0;
@@ -665,6 +799,7 @@ int main() {
 					vidas = 3;
 					game_over = false;
 					llenar_mat(mat, 0);
+					animacion_go_hecha = false;
 				}
 				angulo = (rand() % 100) + 15;
 				ball1.vx = (float) ball1.dx * cos(DEGTORAD(angulo));
@@ -676,6 +811,7 @@ int main() {
 					fuera_mainmenu = false;
 					llenar_mat(mat, 0);
 					game_over = false;
+					animacion_go_hecha = false;
 				} else if (!pausa) {
 					pausa = true;
 				} else {
@@ -693,6 +829,8 @@ int main() {
 				// TECLA 2: Pasar de Nivel
 				if (event.keyboard.keycode == ALLEGRO_KEY_2) {
 					nivel_ganado = true; // ¡Esto es todo! El juego hará el resto.
+					al_play_sample(sonido_nivel, 1.0, 0.0, 1.0,
+							ALLEGRO_PLAYMODE_ONCE, NULL);
 				}
 				// TECLA 3: Activar Super Romper (Toggle)
 				if (event.keyboard.keycode == ALLEGRO_KEY_3) {
@@ -757,9 +895,12 @@ int main() {
 					pausa = false;
 
 					// 2. REINICIO TOTAL DE ESTADÍSTICAS
+					ball1.dx = 5;
+					ball1.dy = 5;
 					vidas = 3;      // Volvemos a tener todas las vidas
 					puntaje = 0;    // El puntaje vuelve a 0
 					nivel = 0;      // Volvemos al primer nivel (Nivel 1)
+					animacion_go_hecha = false;
 
 					// 3. Recargamos la matriz del Nivel 0 (el primero)
 					llenar_mat(mat, nivel);
@@ -797,6 +938,7 @@ int main() {
 					pausa = false;
 					fuera_mainmenu = false;
 					llenar_mat(mat, 0);
+					animacion_go_hecha = false;
 
 					ball1.vx = 0;
 					ball1.vy = 0;
@@ -942,16 +1084,20 @@ int main() {
 					al_clear_to_color(themeslist[contador].color_pantalla);
 
 					if (wider_timer >= 300 && !bloq_tit) {
-						dibujar_all(disAlto, disAncho, lado, al_map_rgb(255,0,0), platform.bounding, ball1, mat,
-						themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
+						dibujar_all(disAlto, disAncho, lado,
+								al_map_rgb(255, 0, 0), platform.bounding, ball1,
+								mat, themeslist[contador].color_pantalla,
+								imagen_bomba, estado_bomba);
 						titileo++;
 						if (titileo == 20) {
 							bloq_tit = true;
 						}
-					}
-					else {
-						dibujar_all(disAlto, disAncho, lado, themeslist[contador].color_lineas, platform.bounding, ball1, mat,
-						themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
+					} else {
+						dibujar_all(disAlto, disAncho, lado,
+								themeslist[contador].color_lineas,
+								platform.bounding, ball1, mat,
+								themeslist[contador].color_pantalla,
+								imagen_bomba, estado_bomba);
 						if (titileo >= 0) { // para evitar que la variable tome valores negativos. tarda mas ciclos en titilar
 							titileo--;
 							if (titileo == 0) {
@@ -959,11 +1105,10 @@ int main() {
 							}
 						}
 					}
-							
+
 					dibujar_powerups(powerups_mat);
 
 					// (Borré la linea duplicada de dibujar_all que tenías)
-
 
 					if (pausa) {
 						// Tu logica de pausa...
@@ -991,11 +1136,30 @@ int main() {
 					}
 
 					if (game_over) {
-						al_draw_multiline_text(gameoverfont,
-								themeslist[contador].color_texto, disAncho / 2,
-								disAlto / 2, disAncho - disAncho / 3, 30,
+						// --- DIBUJO DE PANTALLA GAME OVER ---
+
+						// 1. Un recuadro negro semitransparente de fondo (opcional, para que se lea mejor)
+						al_draw_filled_rectangle(0, disAlto / 3, disAncho,
+								disAlto * 2 / 3, al_map_rgba(0, 0, 0, 200));
+
+						// 2. Titulo GAME OVER en Rojo
+						al_draw_text(gameoverfont, al_map_rgb(255, 0, 0),
+								disAncho / 2, disAlto / 2 - 50,
+								ALLEGRO_ALIGN_CENTER, "GAME OVER");
+
+						// 3. El PUNTAJE (¡Esto es lo que querías!)
+						al_draw_textf(gameoverfont, al_map_rgb(255, 255, 255),
+								disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
+								"PUNTAJE FINAL: %d", puntaje);
+
+						// 4. Instrucciones (Más pequeñas abajo)
+						al_draw_text(gameoverfont, al_map_rgb(255, 255, 0),
+								disAncho / 2, disAlto / 2 + 60,
 								ALLEGRO_ALIGN_CENTER,
-								"GAME OVER\n PRESIONE [ESC] PARA IR AL MENU PRINCIPAL O [SPACE] PARA VOLVER A INTENTAR");
+								"[ESPACIO] Reiniciar    -    [ESC] Menu Principal");
+
+						// -------------------------------------
+
 					}
 
 					// HUD
@@ -1116,8 +1280,18 @@ int main() {
 	printf("Destruyendo los eventos...\n");
 	al_destroy_event_queue(queue);
 	printf("Destruyendo la musica...\n");
-	al_destroy_audio_stream(music);
 	printf("Destruyendo imagen...\n");
 	al_destroy_bitmap(imagen_bomba);
+	al_destroy_sample(sonido_nave);
+	al_destroy_sample(sonido_choque);
+	al_destroy_sample(sonido_explosion);
+	al_destroy_sample(sonido_vida);
+	al_destroy_sample(sonido_azul);
+	al_destroy_sample(sonido_rojo);
+	al_destroy_sample(sonido_nivel);
+	al_destroy_sample(sonido_menos);
+	al_destroy_sample(sonido_over);
+	al_destroy_sample(sonido_nobarra);
+	printf("Destruyendo la musica...\n");
 	return 0;
 }

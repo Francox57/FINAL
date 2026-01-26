@@ -113,6 +113,31 @@ void dibujar_powerups(powerup powerups_mat[3]) {
 }
 
 
+void animacion_game_over_fade(ALLEGRO_FONT *fuente, int puntaje, int ancho, int alto) {
+	// Bucle para el efecto de "Fade In" (Aparecer suavemente)
+	for (float alpha = 0.0; alpha <= 1.0; alpha += 0.005) { // 0.005 es la velocidad
+		al_clear_to_color(al_map_rgb(0, 0, 0)); // Fondo negro
+
+		// Color rojo que va apareciendo (alpha aumenta)
+		ALLEGRO_COLOR color_fade = al_map_rgba_f(1.0, 0.0, 0.0, alpha);
+		ALLEGRO_COLOR color_blanco_fade = al_map_rgba_f(1.0, 1.0, 1.0, alpha);
+
+		// Texto GAME OVER
+		al_draw_text(fuente, color_fade, ancho / 2, alto / 2 - 50,
+				ALLEGRO_ALIGN_CENTER, "GAME OVER");
+
+		// Texto del PUNTAJE
+		al_draw_textf(fuente, color_blanco_fade, ancho / 2, alto / 2 + 20,
+				ALLEGRO_ALIGN_CENTER, "TU PUNTAJE: %d", puntaje);
+
+		al_flip_display();
+		al_rest(0.01); // Pequeña pausa para que la animación sea fluida
+	}
+
+	al_rest(1.0); // Esperar 1 segundo con el texto en pantalla antes de mostrar los botones
+}
+
+
 int recuento_bloques(bloque mat[ANCHO][ALTO]) {
 	int vivos = 0;
 	for (int i = 0 ; i < ALTO ; i++) {
