@@ -880,11 +880,11 @@ int main() {
 				disAncho -= 10; // decrementa ancho del display
 				redraw = true;
 			}
-			if (disAlto < 550) { // impide que el display sea muy pequeño para que las letras entren
-				disAlto = 550;
+			if (disAlto < 720) { // impide que el display sea muy pequeño para que las letras entren
+				disAlto = 720;
 			}
-			if (disAncho < 550) { // impide que el display sea muy pequeño para que las letras entren
-				disAncho = 550;
+			if (disAncho < 720) { // impide que el display sea muy pequeño para que las letras entren
+				disAncho = 720;
 			}
 			al_resize_display(disp, disAncho, disAlto); // Cambia tamaño de pantalla
 			al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla para que no se escriba texto por encima
