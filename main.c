@@ -8,11 +8,11 @@ int main() {
 
 	// INICICIALIZACION //
 	must_init(al_init(), "allegro"); // Cada must_init verifica que se haya inicializado cada cosa
-	must_init(al_install_keyboard(), "keyboard");
-	must_init(al_init_primitives_addon(), "primitivas");
-	must_init(al_init_image_addon(), "imagenes");
-	must_init(al_install_mouse(), "mouse");
-	must_init(al_install_audio(), "audio");
+	must_init(al_install_keyboard(), "keyboard"); // Instala el uso de teclado
+	must_init(al_init_primitives_addon(), "primitivas"); // Instala las primitivas
+	must_init(al_init_image_addon(), "imagenes");// Instala el uso de imagenes
+	must_init(al_install_mouse(), "mouse"); // Instala el uso de mouse
+	must_init(al_install_audio(), "audio"); // Instala el uso de audio
 	must_init(al_init_acodec_addon(), "audio codecs");
 	
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
@@ -53,37 +53,47 @@ int main() {
 	must_init(gameoverfont, "font");
 	must_init(music, "music");
 	must_init(imagen_bomba, "imagen de la bomba");
+	must_init(sonido_azul, "azul");
+	must_init(sonido_choque, "choque");
+	must_init(sonido_explosion, "explosion");
+	must_init(sonido_menos, "menos");
+	must_init(sonido_nave, "nave");
+	must_init(sonido_nivel, "nivel");
+	must_init(sonido_nobarra, "no barra");
+	must_init(sonido_over, "over sound");
+	must_init(sonido_rojo, "rojo");
+	must_init(sonido_vida, "verde");
 	/////////////////////////////////
 
 	///////////// VARIABLES /////////////////
-	bool key_left = false;
-	bool key_right = false;
+	bool key_left = false; // variable que sirve para ver cuando el usuario mueve la plataforma a la izquierda
+	bool key_right = false;// variable que sirve para ver cuando el usuario mueve la plataforma a la derecha
 	bool redraw = true; // variable que admite el redibujar la pantalla
 	bool cerrar = false; // variable que cierra todo el programa
 	bool fuera_mainmenu = false; // variable que permite dibujar la pantalla del juego
-	bool pausa = false;
-	bool menu_opciones = false;
-	bool game_over = false;
-	bool nivel_ganado = false;
-	bool modo_demo = false;
+	bool pausa = false; // indica si esta en pausa
+	bool menu_opciones = false; // indica si esta en el menu de opciones
+	bool game_over = false; // indica si termino el juego
+	bool nivel_ganado = false; // indica si se gano un nivel
+	bool modo_demo = false; // indica si esta en modo demo
 	bool super_romper = false;  // instakill del modo demo
-	bool aumento = false;
-	bool bloq_tit = false;
-	bool estado_bomba = false;
+	bool aumento = false; // indica si esta alargada la plataforma
+	bool bloq_tit = false; // indica si esta titilando la plataforma
+	bool estado_bomba = false; // indica si esta la pelota en modo bomba
 	bool animacion_go_hecha = false;
-	float hit;
-	float anchorect;
-	float anchoplat;
-	float radio;
-	float lado;
-	float angulo = 90;
-	float max_angulo = 70;
+	float hit; // variable que sirve para saber en que posicion pego la pelota
+	float anchorect; // ancho de los bloques
+	float anchoplat; // ancho de la plataforma
+	float radio; // radio de la pelota
+	float lado; // alto de los bloques
+	float angulo = 90; // angulo de la pelota
+	float max_angulo = 70; // maximo angulo a la primera salida de la pelota
 	int contador = 0; // variable que sirve para determinar que tema usar
-	int puntaje = 0;
-	int dice = 3;
-	int nivel = 0;
-	int bloques_vivos = 0;
-	int wider_timer = 0;
+	int puntaje = 0; 
+	int dice = 3; // dado que decidira cuando sale un poder
+	int nivel = 0; // indica  el nivel en el que esta
+	int bloques_vivos = 0; // indicara la cantidad de bloques vivos
+	int wider_timer = 0; 
 	int titileo = 0;
 	int radio_explo = 1;
 	char vidas = 3;
@@ -664,10 +674,8 @@ int main() {
 				ball1.vx = (float) ball1.dx * cos(DEGTORAD(angulo));
 				ball1.vy = -((float) ball1.dy * sin(DEGTORAD(angulo)));
 			}
-			else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) { // si se toca escape se pone en pausa
-				if (game_over) {
-					
-					
+			else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) { // si se toca escape se pone en pausa o vuelve al menu principal
+				if (game_over) { // si el usuario perdio vuelve al menu principal
 					vidas = 3;
 					pausa = false;
 					fuera_mainmenu = false;
@@ -683,10 +691,10 @@ int main() {
 					estado_bomba = false;
 					
 				}
-				else if (!pausa) {
+				else if (!pausa) { // si no esta en pausa se pone en pausa
 					pausa = true;
 				}
-				else {
+				else { // si esta en pausa se saca la pausa
 					pausa = false;
 				}
 			}
@@ -708,10 +716,10 @@ int main() {
 		}
 		
 		
-		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) { // evento de cuando se clickea
 			if (!fuera_mainmenu && !menu_opciones) {
 				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[0].bounding.ulx,
-						matriz_menu[0].bounding.uly, matriz_menu[0].bounding.drx, matriz_menu[0].bounding.dry)) {
+						matriz_menu[0].bounding.uly, matriz_menu[0].bounding.drx, matriz_menu[0].bounding.dry)) { // si clickea en "JUGAR"
 					fuera_mainmenu = true;
 					for (int i = 0; i < ALTO; i++) {
 						for (int j = 0; j < ANCHO; j++) {
@@ -725,24 +733,24 @@ int main() {
 					}
 					llenar_mat(mat, 0);
 				} 
-				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[1].bounding.ulx,
-						matriz_menu[1].bounding.uly, matriz_menu[1].bounding.drx, matriz_menu[1].bounding.dry)) {
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[1].bounding.ulx, // si clickea en "OPCIONES"
+						matriz_menu[1].bounding.uly, matriz_menu[1].bounding.drx, matriz_menu[1].bounding.dry)) { 
 					menu_opciones = true;
 				}
-				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[2].bounding.ulx,
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[2].bounding.ulx, // si clickea en "SALIR"
 						matriz_menu[2].bounding.uly, matriz_menu[2].bounding.drx, matriz_menu[2].bounding.dry)) {
 					cerrar = true;
 				}
 			}
-			else if (pausa) {
-				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[0].bounding.ulx,
+			else if (pausa) { // si esta en pausa
+				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[0].bounding.ulx, // si clickea en "REANUDAR"
 						matriz_pausa[0].bounding.uly, matriz_pausa[0].bounding.drx, matriz_pausa[0].bounding.dry)) {
 					pausa = false;
 				}
-				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[1].bounding.ulx,
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[1].bounding.ulx, // si clickea en "REINICIAR"
 						matriz_pausa[1].bounding.uly, matriz_pausa[1].bounding.drx, matriz_pausa[1].bounding.dry)) {
 					
-					
+					// Se vuelve todo al estado inicial de cuando se inicia el programa
 					pausa = false;
 					vidas = 3;
 					puntaje = 0;
@@ -767,9 +775,9 @@ int main() {
 							((float) disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float) disAlto * 0.90)	- 16));
 				}
 				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[2].bounding.ulx,
-						matriz_pausa[2].bounding.uly, matriz_pausa[2].bounding.drx, matriz_pausa[2].bounding.dry)) {
+						matriz_pausa[2].bounding.uly, matriz_pausa[2].bounding.drx, matriz_pausa[2].bounding.dry)) { // si clickea en "VOLVER A MENU"
 
-
+					// hace lo mismo que en el if anterior pero tambien activa para que vuelva al menu principal
 					vidas = 3;
 					pausa = false;
 					fuera_mainmenu = false;
@@ -806,9 +814,7 @@ int main() {
 
 				}
 			} else if (menu_opciones) {
-				// ---------------------------------------------------------
-				// 1. ZONA TEMA (Altura Y entre 200 y 260)
-				// ---------------------------------------------------------
+				// ZONA TEMA (Altura Y entre 200 y 260)
 				if (event.mouse.y > 200 && event.mouse.y < 260) {
 					// Click a la izquierda (Flecha <)
 					if (event.mouse.x < disAncho / 2) {
@@ -825,10 +831,7 @@ int main() {
 							contador++;
 					}
 				}
-
-				// ---------------------------------------------------------
-				// 2. ZONA VELOCIDAD (Altura Y entre 320 y 380)
-				// ---------------------------------------------------------
+				// ZONA VELOCIDAD (Altura Y entre 320 y 380)
 				if (event.mouse.y > 320 && event.mouse.y < 380) {
 					// Click a la izquierda (Menos velocidad)
 					if (event.mouse.x < disAncho / 2) {
@@ -842,9 +845,7 @@ int main() {
 					}
 				}
 
-				// ---------------------------------------------------------
-				// 3. ZONA MODO DEMO (Altura Y entre 440 y 500)
-				// ---------------------------------------------------------
+				// ZONA MODO DEMO (Altura Y entre 440 y 500)
 				if (event.mouse.y > 440 && event.mouse.y < 500) {
 					// Click en todo el ancho central
 					if (event.mouse.x > disAncho / 2 - 250
@@ -855,9 +856,7 @@ int main() {
 					}
 				}
 
-				// ---------------------------------------------------------
-				// 4. ZONA BOTON ATRAS (Altura Y entre 580 y 630)
-				// ---------------------------------------------------------
+				//  ZONA BOTON ATRAS (Altura Y entre 580 y 630)
 				if (event.mouse.y > 580 && event.mouse.y < 630) {
 					if (event.mouse.x > disAncho / 2 - 100
 							&& event.mouse.x < disAncho / 2 + 100) {
@@ -890,15 +889,15 @@ int main() {
 			al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla para que no se escriba texto por encima
 		}
 
-		if (redraw && al_is_event_queue_empty(queue)) {
+		if (redraw && al_is_event_queue_empty(queue)) { // si esta para redibujar
 
 			// Limpieza general por seguridad
 			al_clear_to_color(themeslist[contador].color_pantalla);
 
-			if (fuera_mainmenu && !menu_opciones) {
+			if (fuera_mainmenu && !menu_opciones) { // si no esta en el menu principal ni en el menu opciones
 
 				if (en_transicion) {
-					// --- DIBUJAR TRANSICION GALAGA ---
+					//  DIBUJAR TRANSICION GALAGA 
 					al_clear_to_color(al_map_rgb(0, 0, 0)); // Fondo negro
 
 					for (int i = 0; i < MAX_STARS; i++) {
@@ -909,7 +908,7 @@ int main() {
 					}
 
 					// Texto Parpadeante
-					if (frames_transicion % 40 < 30) {
+					if (frames_transicion % 40 < 30) { 
 						al_draw_textf(gameoverfont, al_map_rgb(0, 255, 255),
 								disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
 								"STAGE %d", nivel + 1);
@@ -918,13 +917,13 @@ int main() {
 								"READY");
 					}
 
-					// ¡¡¡ESTO ES LO QUE FALTABA!!!
+					
 					al_flip_display();
 					redraw = false;
-					// ---------------------------
+					
 
 				} else {
-					// --- DIBUJAR JUEGO NORMAL ---
+					// DIBUJAR JUEGO NORMAL 
 					al_clear_to_color(themeslist[contador].color_pantalla);
 
 					if (wider_timer >= 300 && !bloq_tit) {
@@ -980,29 +979,28 @@ int main() {
 					}
 
 					if (game_over) {
-						// --- DIBUJO DE PANTALLA GAME OVER ---
+						// DIBUJO DE PANTALLA GAME OVER 
 
-						// 1. Un recuadro negro semitransparente de fondo (opcional, para que se lea mejor)
+						// Un recuadro negro semitransparente de fondo (opcional, para que se lea mejor)
 						al_draw_filled_rectangle(0, disAlto / 3, disAncho,
 								disAlto * 2 / 3, al_map_rgba(0, 0, 0, 200));
 
-						// 2. Titulo GAME OVER en Rojo
+						// Titulo GAME OVER en Rojo
 						al_draw_text(gameoverfont, al_map_rgb(255, 0, 0),
 								disAncho / 2, disAlto / 2 - 50,
 								ALLEGRO_ALIGN_CENTER, "GAME OVER");
 
-						// 3. El PUNTAJE (¡Esto es lo que querías!)
+						// El PUNTAJE 
 						al_draw_textf(gameoverfont, al_map_rgb(255, 255, 255),
 								disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
 								"PUNTAJE FINAL: %d", puntaje);
 
-						// 4. Instrucciones (Más pequeñas abajo)
+						// Instrucciones (Más pequeñas abajo)
 						al_draw_text(gameoverfont, al_map_rgb(255, 255, 0),
 								disAncho / 2, disAlto / 2 + 60,
 								ALLEGRO_ALIGN_CENTER,
 								"[ESPACIO] Reiniciar    -    [ESC] Menu Principal");
 
-						// -------------------------------------
 
 					}
 
@@ -1044,7 +1042,7 @@ int main() {
 				al_draw_text(gameoverfont, galaga_yellow, disAncho / 2, 100,
 						ALLEGRO_ALIGN_CENTER, "BREAKOUT 8-BIT");
 				if (menu_opciones) {
-					// --- TUS OPCIONES ---
+					// OPCIONES
 					al_draw_text(gameoverfont, themeslist[contador].color_texto,
 							disAncho / 2, 200, ALLEGRO_ALIGN_CENTER, "TEMA:");
 					al_draw_text(gameoverfont, themeslist[contador].color_texto,
