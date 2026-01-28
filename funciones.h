@@ -80,7 +80,9 @@ typedef struct { // Se crea la estructura temas
 } THEMES;
 ///////////////////////////////
 
+
 extern int mapas_niveles[3][ALTO][ANCHO];
+
 
 // PROTOTIPOS DE FUNCIONES //
 void must_init (bool test, const char *descrpcion);
@@ -90,6 +92,7 @@ void llenar_mat (bloque mat[ALTO][ANCHO], int nivel);
 void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo, ALLEGRO_BITMAP* sprite, bool estado_bomba);
 void dibujar_powerups(powerup powerups_mat[3]);
 void animacion_game_over_fade(ALLEGRO_FONT *fuente, int puntaje, int ancho, int alto);
+void restart_settings(void);
 int recuento_bloques(bloque mat[ANCHO][ALTO]);
 void spawn_powerups();
 char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);

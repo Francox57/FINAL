@@ -8,7 +8,7 @@ void must_init(bool test, const char *descripcion) { // verifica que el argument
 }
 
 
-bounding_box set_bounding(float ulx ,float uly ,float  drx ,float dry) {
+bounding_box set_bounding(float ulx ,float uly ,float  drx ,float dry) {  // establece limites de entidades
 	bounding_box hitbox  = {ulx,uly,drx,dry};
 	return hitbox;
 }
@@ -24,11 +24,11 @@ void init_stars(Star stars[], int ancho, int alto) {
 }
 
 
-void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
+void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {  // le pone vida a cada bloque dependiendo del nivel
 	int i,j;
 	srand(time(NULL));
 	printf("%d",nivel);
-	if (nivel > 2) {
+	if (nivel > 2) {  // niveles random
 		for (i = 0 ; i < ALTO ; i++) {
 			for (j = 0 ; j < ANCHO ; j++) {
 				mat[i][j].cant_impactos_total = (rand() % 5)+1;
@@ -42,7 +42,8 @@ void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 			}
 		}
 		return;
-	}else{
+	}
+	else {  // primeros tres niveles pre hechos
 		for (i = 0 ; i < ALTO ; i++) {
 			for (j = 0 ; j < ANCHO ; j++) {
 				mat[i][j].cant_impactos_total = mapas_niveles[nivel][i][j];
@@ -58,7 +59,7 @@ void llenar_mat (bloque mat[ALTO][ANCHO] , int nivel) {
 	}
 }
 
-
+// dibuja la pantalla del juego
 void dibujar_all (int dispAlto, int dispAncho, float lado, ALLEGRO_COLOR color, bounding_box plat, entities ball, bloque mat[ALTO][ANCHO],ALLEGRO_COLOR color_fondo, ALLEGRO_BITMAP* sprite, bool estado_bomba) {
 	int i,j;
 	ALLEGRO_COLOR color_bloque;
@@ -98,9 +99,9 @@ void dibujar_powerups(powerup powerups_mat[3]) {
 		if (powerups_mat[i].state == POWERUP_FALLING) {
 			ALLEGRO_COLOR color_powerup;
 			switch (i) {
-				case 0: color_powerup = al_map_rgb(0, 255, 0); break;
-				case 1: color_powerup = al_map_rgb(0, 0, 255); break;
-				default: color_powerup = al_map_rgb(255, 0, 0); break;
+				case 0: color_powerup = al_map_rgb(0, 255, 0); break; // powerup verde
+				case 1: color_powerup = al_map_rgb(0, 0, 255); break; // powerup azul
+				default: color_powerup = al_map_rgb(255, 0, 0); break; // powerup rojo
 			}
 			float radio = (powerups_mat[i].bounding.drx - powerups_mat[i].bounding.ulx) / 2.0;
 			float cx = powerups_mat[i].bounding.ulx + radio;
@@ -134,7 +135,7 @@ void animacion_game_over_fade(ALLEGRO_FONT *fuente, int puntaje, int ancho, int 
 		al_rest(0.01); // Pequeña pausa para que la animación sea fluida
 	}
 
-	al_rest(1.0); // Esperar 1 segundo con el texto en pantalla antes de mostrar los botones
+	al_rest(1.0); // 1 segundo con el texto en pantalla antes de mostrar los botones
 }
 
 
@@ -151,7 +152,7 @@ int recuento_bloques(bloque mat[ANCHO][ALTO]) {
 }
 
 
-char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
+char collide (int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {  // analiza si dos entidades chocaron
 
 	// situaciones en las que los dos cuerpos no chocan entre si
 	if(ax1 >= bx2) return 0;

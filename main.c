@@ -1,6 +1,5 @@
 #include "funciones.h"
 
-
 int main() {
 	srand(time(NULL)); // semilla random para la funcion rand()
 	bloque mat[ALTO][ANCHO]; // matriz principal
@@ -18,7 +17,6 @@ int main() {
 	
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
-	// Forzar frecuencia estándar
 	al_set_config_value(al_get_system_config(), "audio", "frequency", "44100");
 	
 	must_init(al_reserve_samples(16), "reserve samples");
@@ -32,11 +30,9 @@ int main() {
 	ALLEGRO_DISPLAY *disp = al_create_display(disAncho, disAlto); // Puntero que representa al display
 	ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0); // Timer
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue(); // queue
-	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream(
-			"resources/proper_summer.flac", 2, 2048); // musica
+	ALLEGRO_AUDIO_STREAM *music = al_load_audio_stream("resources/proper_summer.flac", 2, 2048); // musica
 	ALLEGRO_FONT *font = al_load_ttf_font("resources/OpenSans.ttf", 15, 0); // fuente
-	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf",
-			30, 0);
+	ALLEGRO_FONT *gameoverfont = al_load_ttf_font("resources/Tiny5-Regular.ttf", 30, 0);
 	ALLEGRO_MOUSE_STATE mouse;
 	ALLEGRO_BITMAP *imagen_bomba = al_load_bitmap("resources/bombita.png");
 	ALLEGRO_SAMPLE *sonido_nave = al_load_sample("resources/rebote.wav");
@@ -69,8 +65,8 @@ int main() {
 	bool menu_opciones = false;
 	bool game_over = false;
 	bool nivel_ganado = false;
-	bool modo_demo = false;     // Activa los trucos
-	bool super_romper = false;  // Truco de la tecla 3 (Romper de una)
+	bool modo_demo = false;
+	bool super_romper = false;  // instakill del modo demo
 	bool aumento = false;
 	bool bloq_tit = false;
 	bool estado_bomba = false;
@@ -170,7 +166,7 @@ int main() {
 	while (!cerrar) {
 		al_get_mouse_state(&mouse);
 
-		// se sigue en el menu principal //
+		// MENU PRINCIPAL //
 		if (!fuera_mainmenu && !ball1.vx && !ball1.vy) {
 			lado = (disAlto / 2) / ALTO; // cuanto mide los lados verticales de las casillas
 			radio = ((2.5 * (float) disAncho) / 255);
@@ -227,14 +223,11 @@ int main() {
 					disAlto / 3 + lado * 8);
 		}
 		/////////////////////////////////////////////////////////////////////////////////
-
 		al_wait_for_event(queue, &event); // indica al programa que revise si hay eventos
-
+		
 		if (event.type == ALLEGRO_EVENT_TIMER) {
-
 			if (en_transicion) { // pantalla animada entre niveles
 				frames_transicion++;
-				// Mover estrellas
 				for (int i = 0; i < MAX_STARS; i++) {
 					stars[i].y += stars[i].velocidad;
 					if (stars[i].y > disAlto) {
@@ -242,13 +235,13 @@ int main() {
 						stars[i].x = rand() % disAncho;
 					}
 				}
-				// Duración: 3 segundos (180 frames)
-				if (frames_transicion > 180) {
+				if (frames_transicion > 180) { // transicion de tres segundos
 					en_transicion = false;
 				}
 				redraw = true;
-			} else {
-				if (!fuera_mainmenu && !menu_opciones) { // el usuario esta en la pantalla inicial de la app
+			}
+			else {
+				if (!fuera_mainmenu && !menu_opciones) { // pantalla principal
 					for (int i = 0; i < 3; i++) {
 						if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
 								matriz_menu[i].bounding.ulx,
@@ -263,22 +256,23 @@ int main() {
 									ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 						}
 					}
-				} else if (menu_opciones) { // el usuario esta en la parte de opciones
+				}
+				else if (menu_opciones) {
 					for (int i = 4; i <= 8; i++) {
 						if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
 								matriz_menu[i].bounding.ulx,
 								matriz_menu[i].bounding.uly,
 								matriz_menu[i].bounding.drx,
 								matriz_menu[i].bounding.dry)) {
-							al_set_system_mouse_cursor(disp,
-									ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+							al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 							break;
-						} else {
-							al_set_system_mouse_cursor(disp,
-									ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+						}
+						else {
+							al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 						}
 					}
-				} else if (fuera_mainmenu && !menu_opciones) { // el usuario salio de todos los menus
+				}
+				else if (fuera_mainmenu && !menu_opciones) { // se toco el boton "JUGAR"
 					if (pausa) {
 						for (int i = 0; i < 3; i++) {
 							if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
@@ -286,17 +280,15 @@ int main() {
 									matriz_pausa[i].bounding.uly,
 									matriz_pausa[i].bounding.drx,
 									matriz_pausa[i].bounding.dry)) {
-								al_set_system_mouse_cursor(disp,
-										ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+								al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 								break;
 							} else {
-								al_set_system_mouse_cursor(disp,
-										ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+								al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 							}
 						}
-					} else {
-						al_set_system_mouse_cursor(disp,
-								ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+					}
+					else {
+						al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 					}
 				}
 				if (fuera_mainmenu && !pausa && !menu_opciones) { // el usuario empezo a jugar
@@ -312,135 +304,102 @@ int main() {
 
 					}
 					if (ball1.vx == 0 && ball1.vy == 0) {
-						float centro_paleta =
-								platform.bounding.ulx
-										+ (platform.bounding.drx
-												- platform.bounding.ulx) / 2;
+						float centro_paleta = platform.bounding.ulx +
+								(platform.bounding.drx - platform.bounding.ulx) / 2;
 						ball1.x = centro_paleta;
 						ball1.y = platform.bounding.uly - radio - 1;
-
-						ball1.bounding = set_bounding(ball1.x - radio,
-								ball1.y - radio, ball1.x + radio,
-								ball1.y + radio);
+						ball1.bounding = set_bounding(ball1.x - radio, ball1.y - radio,
+								ball1.x + radio, ball1.y + radio);
 					}
 
-					if (collide(ball1.bounding.ulx, ball1.bounding.uly,
-							ball1.bounding.drx, ball1.bounding.dry, -10, 0, 0,
-							disAlto)) {
+					// LA PELOTA COLISIONA CON LOS BORDES DE PANTALLA //
+					if (collide(ball1.bounding.ulx, ball1.bounding.uly, ball1.bounding.drx,
+							ball1.bounding.dry, -10, 0, 0, disAlto)) {
 						ball1.vx = fabs(ball1.vx);
 						ball1.x = radio + 3;
 					}
-					if (collide(ball1.bounding.ulx, ball1.bounding.uly,
-							ball1.bounding.drx, ball1.bounding.dry,
-							disAncho - 10, 0, disAncho, disAlto)) {
+					if (collide(ball1.bounding.ulx, ball1.bounding.uly, ball1.bounding.drx,
+							ball1.bounding.dry, disAncho - 10, 0, disAncho, disAlto)) {
 						ball1.vx = -fabs(ball1.vx);
 						ball1.x = disAncho - radio - 3;
 					}
-					if (collide(ball1.bounding.ulx, ball1.bounding.uly,
-							ball1.bounding.drx, ball1.bounding.dry, -5, -10,
-							disAncho + 5, 0)) {
+					if (collide(ball1.bounding.ulx, ball1.bounding.uly, ball1.bounding.drx,
+							ball1.bounding.dry, -5, -10, disAncho + 5, 0)) {
 						ball1.vy = -ball1.vy;
 						ball1.y = radio + 3;
 					}
-					if (collide(ball1.bounding.ulx, ball1.bounding.uly,
-							ball1.bounding.drx, ball1.bounding.dry, -5, disAlto,
-							disAncho + 5, disAlto + 10)) {
+					if (collide(ball1.bounding.ulx, ball1.bounding.uly, ball1.bounding.drx,
+							ball1.bounding.dry, -5, disAlto, disAncho + 5, disAlto + 10)) {
 						ball1.vx = 0;
 						ball1.vy = 0;
 						ball1.x = (float) disAncho / 2;
-						ball1.y = disAlto
-								- ((disAlto - ((float) disAlto * 0.90))
-										+ (6 * anchorect) / 32);
-						ball1.bounding = set_bounding(ball1.x - radio,
-								(ball1.y - radio), ball1.x + radio,
-								(ball1.y + radio));
-						platform.bounding = set_bounding(
-								((float) disAncho / 2) - 2.5 * anchoplat,
+						ball1.y = disAlto - ((disAlto - ((float) disAlto * 0.90)) + (6 * anchorect) / 32);
+						ball1.bounding = set_bounding(ball1.x - radio, (ball1.y - radio),
+								ball1.x + radio, (ball1.y + radio));
+						platform.bounding = set_bounding(((float) disAncho / 2) - 2.5 * anchoplat,
 								disAlto - (disAlto - ((float) disAlto * 0.90)),
 								((float) disAncho / 2) + 2.5 * anchoplat,
-								disAlto
-										- (disAlto - ((float) disAlto * 0.895)
-												- 16));
+								disAlto - (disAlto - ((float) disAlto * 0.895) - 16));
 						vidas--;
 						if (vidas >= 1) {
-							// Si me quedan vidas, suena el "auch"
-							al_play_sample(sonido_menos, 1.0, 0.0, 1.0,
-									ALLEGRO_PLAYMODE_ONCE, NULL);
-						} else {
-							// Es la ultima vida, quizas aqui va otro sonido de GAME OVER final
-							// o dejas el mismo, como prefieras.
-							if (vidas < 1) {
-
-								// --- NUEVO: ANIMACION ---
-								if (!animacion_go_hecha) {
-									al_play_sample(sonido_over, 1.0, 0.0, 1.0,
-											ALLEGRO_PLAYMODE_ONCE, NULL);
-									animacion_game_over_fade(gameoverfont,
-											puntaje, disAncho, disAlto);
-									animacion_go_hecha = true; // Marcamos que ya se hizo para no repetirla
-
-									// limpiar todo lo que tenia pendiente el juego
-									al_flush_event_queue(queue);
-								}
-								
+							al_play_sample(sonido_menos, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+						}
+						else {
+							if (!animacion_go_hecha) {
+								al_play_sample(sonido_over, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+								animacion_game_over_fade(gameoverfont, puntaje, disAncho, disAlto);
+								animacion_go_hecha = true;
+								al_flush_event_queue(queue); // se limpia la fila de eventos pendientes
 							}
 						}
 					}
+					////////////////////////////////////////////////////
+					
+					// COLISION ENTRE LA PELOTA Y LA PLATAFORMA //
+					char collision_wp = collide(ball1.bounding.ulx,	ball1.bounding.uly, ball1.bounding.drx,
+							ball1.bounding.dry, platform.bounding.ulx, platform.bounding.uly,
+							platform.bounding.drx, platform.bounding.dry);
 
-					char collision_wp = collide(ball1.bounding.ulx,
-							ball1.bounding.uly, ball1.bounding.drx,
-							ball1.bounding.dry, platform.bounding.ulx,
-							platform.bounding.uly, platform.bounding.drx,
-							platform.bounding.dry);
-
-					if (collision_wp == 1
-							&& ball1.bounding.dry >= platform.bounding.uly) {
+					if (collision_wp == 1 && ball1.bounding.dry >= platform.bounding.uly) {
 						ball1.y = platform.bounding.uly - radio - 1;
-						hit =
-								(ball1.x - platform.bounding.ulx)
-										/ (platform.bounding.drx
-												- platform.bounding.ulx);
+						hit = (ball1.x - platform.bounding.ulx) / (platform.bounding.drx - platform.bounding.ulx);
 						angulo = (hit - 0.5) * 2.0 * max_angulo;
 						ball1.vx = ball1.dx * sin(DEGTORAD(angulo));
 						ball1.vy = -ball1.dy * cos(DEGTORAD(angulo));
-						al_play_sample(sonido_nave, 1.0, 0.0, 1.0,
-								ALLEGRO_PLAYMODE_ONCE, NULL);
+						al_play_sample(sonido_nave, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 					}
-
 					bool colisiono = false;
+					//////////////////////////////////////////////
+					
+					// BUCLE PARA ANALIZAR CHOQUES EN CADA LADRILLO //
 					for (int i = 0; i < ALTO && !colisiono; i++) {
 						for (int j = 0; j < ANCHO && !colisiono; j++) {
-							char collision_wb = collide(ball1.bounding.ulx,
-									ball1.bounding.uly, ball1.bounding.drx,
-									ball1.bounding.dry, mat[i][j].bounding.ulx,
-									mat[i][j].bounding.uly,
-									mat[i][j].bounding.drx,
-									mat[i][j].bounding.dry);
+							char collision_wb = collide(ball1.bounding.ulx, ball1.bounding.uly, ball1.bounding.drx,
+									ball1.bounding.dry, mat[i][j].bounding.ulx, mat[i][j].bounding.uly,
+									mat[i][j].bounding.drx,	mat[i][j].bounding.dry);
+									
 							if (collision_wb == -1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										for (int di = -radio_explo;
-												di <= radio_explo; di++) {
-											for (int dj = -radio_explo;
-													dj <= radio_explo; dj++) {
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
-
-												if (ni
-														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
-													mat[ni][nj].cant_impactos_actual =
-															0;
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													puntaje += (mat[ni][nj].cant_impactos_actual * 100);
+													mat[ni][nj].cant_impactos_actual = 0;
 												}
 											}
 										}
-									} else if (estado_bomba) {
+									}
+									else if (estado_bomba) {
 										for (int di = -radio_explo; di <= radio_explo; di++) {
 											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
 												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
 													--mat[ni][nj].cant_impactos_actual;
-													puntaje += 100;	
+													puntaje += 100;
 												}
 											}
 										}
@@ -448,107 +407,79 @@ int main() {
 										estado_bomba = false;
 										powerups_mat[2].state =	POWERUP_INACTIVE;
 
-									} else {
-										--mat[i][j].cant_impactos_actual; // Daño normal
+									}
+									else {
+										--mat[i][j].cant_impactos_actual;
 										puntaje += 100;
 										al_play_sample(sonido_choque, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vx = -ball1.vx;
-
 									colisiono = true;
 								}
-
-							} else if (collision_wb == 1) {
+							}
+							else if (collision_wb == 1) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										for (int di = -radio_explo;
-												di <= radio_explo; di++) {
-											for (int dj = -radio_explo;
-													dj <= radio_explo; dj++) {
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
-
-												if (ni
-														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
-													mat[ni][nj].cant_impactos_actual =
-															0;
-													puntaje +=
-															(mat[i][j].cant_impactos_actual
-																	* 100); //cambiar si no anda por +-100
-												}
-											}
-										}
-									} else if (estado_bomba) {
-										for (int di = -radio_explo;
-												di <= radio_explo; di++) {
-											for (int dj = -radio_explo;
-													dj <= radio_explo; dj++) {
-												int ni = i + di;
-												int nj = j + dj;
-
-												if (ni
-														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
-													--mat[ni][nj].cant_impactos_actual;
-													puntaje +=
-															(mat[i][j].cant_impactos_actual
-																	* 100); //cambiar si no anda por +-100
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													puntaje += (mat[ni][nj].cant_impactos_actual * 100);
+													mat[ni][nj].cant_impactos_actual = 0;
 													
 												}
 											}
 										}
-										al_play_sample(sonido_explosion, 1.0, 0.0, 1.0,ALLEGRO_PLAYMODE_ONCE,NULL);
-										estado_bomba = false;
-										powerups_mat[2].state =
-												POWERUP_INACTIVE;
 									}
-
+									else if (estado_bomba) {
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
+												int ni = i + di;
+												int nj = j + dj;
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													--mat[ni][nj].cant_impactos_actual;
+													puntaje += 100;
+												}
+											}
+										}
+										al_play_sample(sonido_explosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+										estado_bomba = false;
+										powerups_mat[2].state =	POWERUP_INACTIVE;
+									}
 									else {
-										--mat[i][j].cant_impactos_actual; // Daño normal
+										--mat[i][j].cant_impactos_actual;
 										puntaje += 100;
-										al_play_sample(sonido_choque, 1.0, 0.0,
-												1.0, ALLEGRO_PLAYMODE_ONCE,
-												NULL);
+										al_play_sample(sonido_choque, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vy = -ball1.vy;
-
 									colisiono = true;
 								}
-
-							} else if (collision_wb == 2) {
+							}
+							else if (collision_wb == 2) {
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
-										for (int di = -radio_explo;
-												di <= radio_explo; di++) {
-											for (int dj = -radio_explo;
-													dj <= radio_explo; dj++) {
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
-
-												if (ni
-														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
-													mat[ni][nj].cant_impactos_actual =
-															0;
-													puntaje +=
-															(mat[i][j].cant_impactos_actual
-																	* 100); //cambiar si no anda por +-100
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
+													puntaje += (mat[i][j].cant_impactos_actual * 100);
+													mat[ni][nj].cant_impactos_actual = 0;
 												}
 											}
 										}
-									} else if (estado_bomba) {
-
-										for (int di = -radio_explo;
-												di <= radio_explo; di++) {
-											for (int dj = -radio_explo;
-													dj <= radio_explo; dj++) {
+									}
+									else if (estado_bomba) {
+										for (int di = -radio_explo; di <= radio_explo; di++) {
+											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
 												int nj = j + dj;
-
-												if (ni
-														>= 0&& ni < ALTO && nj >= 0 && nj < ANCHO) {
+												if (ni >= 0 && ni < ALTO && nj >= 0 && nj < ANCHO) {
 													--mat[ni][nj].cant_impactos_actual;
 													puntaje += 100;
 													
@@ -557,129 +488,70 @@ int main() {
 										}
 										al_play_sample(sonido_explosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 										estado_bomba = false;
-										powerups_mat[2].state =
-												POWERUP_INACTIVE;
+										powerups_mat[2].state =	POWERUP_INACTIVE;
 									}
-
 									else {
-										--mat[i][j].cant_impactos_actual; // Daño normal
+										--mat[i][j].cant_impactos_actual;
 										puntaje += 100;
-										al_play_sample(sonido_choque, 1.0, 0.0,
-												1.0, ALLEGRO_PLAYMODE_ONCE,
-												NULL);
+										al_play_sample(sonido_choque, 1.0, 0.0,	1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 									}
 								}
 								if (mat[i][j].estado) {
 									ball1.vy = -ball1.vy;
 									ball1.vx = -ball1.vx;
-
 									colisiono = true;
-
 								}
 							}
-							if (mat[i][j].cant_impactos_actual < 1
-									&& mat[i][j].estado) {
+							
+							// BLOQUE DE APARICION DE POWERUPS //
+							if (mat[i][j].cant_impactos_actual < 1 && mat[i][j].estado) {
 								mat[i][j].estado = false;
 								for (int k = 0; k < 3; k++) {
-									if (!(dice = rand() % 15)
-											&& powerups_mat[k].state
-													== POWERUP_INACTIVE) { // solo puede haber un powerup del mismo tipo en pantalla
+									// nota: solo puede haber un powerup del mismo tipo activo
+									if (!(dice = rand() % 15) && powerups_mat[k].state == POWERUP_INACTIVE) {
 										powerups_mat[k].state = POWERUP_FALLING;
-										powerups_mat[k].bounding = set_bounding(
-												mat[i][j].bounding.ulx
-														+ anchorect / 4,
-												mat[i][j].bounding.uly,
-												mat[i][j].bounding.drx
-														- anchorect / 4,
+										powerups_mat[k].bounding = set_bounding(mat[i][j].bounding.ulx + anchorect / 4,
+												mat[i][j].bounding.uly, mat[i][j].bounding.drx - anchorect / 4,
 												mat[i][j].bounding.dry);
 										powerups_mat[k].dy = 3;
 										break;
 									}
 								}
-								//puntaje += 100;
 							}
-
+							/////////////////////////////////////////
 						}
-
 					}
-
+					/////////////////////////////////////////////////////////////////
+					
 					bloques_vivos = recuento_bloques(mat);
 					if (bloques_vivos) {
-						bloques_vivos = 0;
-					} else {
+						bloques_vivos = 0; // reinicio la variable
+					}
+					else {
 						nivel_ganado = true;
 						bloques_vivos = 0;
 					}
-
 					if (nivel_ganado) {
 						nivel++;
-						al_play_sample(sonido_nivel, 1.0, 0.0, 1.0,
-								ALLEGRO_PLAYMODE_ONCE, NULL);
-						if (ball1.dx < 10) {
+						al_play_sample(sonido_nivel, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+						if (ball1.dx < 10) { // aumenta la velocidad de la pelota
 							ball1.dx += 0.5;
 							ball1.dy += 0.5;
 						}
-						printf("NIVEL %d ALCANZADO - Nueva velocidad: %f\n",
-								nivel, ball1.dx);
-						if (nivel >= 3) {
-							llenar_mat(mat, nivel);
-
-							// Resetear posiciones (Tu código de siempre)
-							ball1.vx = 0;
-							ball1.vy = 0;
-							ball1.x = (float) disAncho / 2;
-							ball1.y = disAlto
-									- ((disAlto - ((float) disAlto * 0.90))
-											+ (6 * anchorect) / 32);
-							ball1.bounding = set_bounding(ball1.x - radio,
-									ball1.y - radio, ball1.x + radio,
-									ball1.y + radio);
-							platform.bounding = set_bounding(
-									((float) disAncho / 2) - 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)),
-									((float) disAncho / 2) + 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.895)
-													- 16));
-
-							// --- ACTIVAR MODO GALAGA ---
-							nivel_ganado = false;
-							en_transicion = true;  // ¡Aquí empieza la magia!
-							frames_transicion = 0;
-							init_stars(stars, disAncho, disAlto);
-						} else {
-							llenar_mat(mat, nivel);
-
-							// Resetear posiciones (Tu código de siempre)
-							ball1.vx = 0;
-							ball1.vy = 0;
-							ball1.x = (float) disAncho / 2;
-							ball1.y = disAlto
-									- ((disAlto - ((float) disAlto * 0.90))
-											+ (6 * anchorect) / 32);
-							ball1.bounding = set_bounding(ball1.x - radio,
-									ball1.y - radio, ball1.x + radio,
-									ball1.y + radio);
-							platform.bounding = set_bounding(
-									((float) disAncho / 2) - 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)),
-									((float) disAncho / 2) + 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.895)
-													- 16));
-
-							// --- ACTIVAR MODO GALAGA ---
-							nivel_ganado = false;
-							en_transicion = true;  // ¡Aquí empieza la magia!
-							frames_transicion = 0;
-							init_stars(stars, disAncho, disAlto);
-						}
+						printf("NIVEL %d ALCANZADO - Nueva velocidad: %f\n", nivel, ball1.dx);
+						llenar_mat(mat, nivel);
+						ball1.vx = 0;
+						ball1.vy = 0;
+						ball1.x = (float) disAncho / 2;
+						ball1.y = disAlto - ((disAlto - ((float) disAlto * 0.90)) + (6 * anchorect) / 32);
+						ball1.bounding = set_bounding(ball1.x - radio, ball1.y - radio, ball1.x + radio, ball1.y + radio);
+						platform.bounding = set_bounding(((float) disAncho / 2) - 2.5 * anchoplat,
+								disAlto	- (disAlto - ((float) disAlto * 0.90)),	((float) disAncho / 2) + 2.5 * anchoplat,
+								disAlto	- (disAlto - ((float) disAlto * 0.895) - 16));
+						nivel_ganado = false;
+						en_transicion = true; // modo galaga
+						frames_transicion = 0;
+						init_stars(stars, disAncho, disAlto);
 					}
 
 					ball1.bounding.ulx += ball1.vx;
@@ -695,27 +567,20 @@ int main() {
 							powerups_mat[p].bounding.dry += powerups_mat[p].dy;
 							if (powerups_mat[p].bounding.uly > disAlto) {
 								powerups_mat[p].state = POWERUP_INACTIVE;
-							} else if (collide(platform.bounding.ulx,
-									platform.bounding.uly,
-									platform.bounding.drx,
-									platform.bounding.dry,
-									powerups_mat[p].bounding.ulx,
-									powerups_mat[p].bounding.uly,
-									powerups_mat[p].bounding.drx,
-									powerups_mat[p].bounding.dry)) {
+							} else if (collide(platform.bounding.ulx, platform.bounding.uly, platform.bounding.drx,
+									platform.bounding.dry, powerups_mat[p].bounding.ulx, powerups_mat[p].bounding.uly,
+									powerups_mat[p].bounding.drx, powerups_mat[p].bounding.dry)) {
 								powerups_mat[p].state = POWERUP_ACTIVE;
 							}
 						}
 					}
 
-					if (powerups_mat[0].state == POWERUP_ACTIVE) {
+					if (powerups_mat[0].state == POWERUP_ACTIVE) { // powerup de vida extra
 						vidas++;
-						al_play_sample(sonido_vida, 1.0, 0.0, 1.0,
-								ALLEGRO_PLAYMODE_ONCE, NULL);
+						al_play_sample(sonido_vida, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 						powerups_mat[0].state = POWERUP_INACTIVE;
 					}
-
-					if (powerups_mat[1].state == POWERUP_ACTIVE) {
+					if (powerups_mat[1].state == POWERUP_ACTIVE) { // powerup que agranda la barra
 						wider_timer++;
 						if (!aumento) {
 							platform.bounding.ulx -= 20;
@@ -729,57 +594,59 @@ int main() {
 							platform.bounding.drx -= 20;
 							aumento = false;
 							wider_timer = 0;
-							al_play_sample(sonido_nobarra, 1.0, 0.0, 1.0,
-									ALLEGRO_PLAYMODE_ONCE, NULL);
+							al_play_sample(sonido_nobarra, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 						}
 					}
-
-					if (powerups_mat[2].state == POWERUP_ACTIVE) {
+					if (powerups_mat[2].state == POWERUP_ACTIVE) { // powerup de bomba
 						if (!estado_bomba) {
 							al_play_sample(sonido_rojo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 							estado_bomba = true;
 						}
+						if (modo_demo && super_romper) {
+							estado_bomba = false;
+							powerups_mat[2].state = POWERUP_INACTIVE;
+						}
 					}
-
 					if (vidas == 0) {
 						game_over = true;
 						nivel = 0;
 					}
-
-					al_clear_to_color(themeslist[contador].color_pantalla);
-					redraw = true;
 				}
-
 				al_clear_to_color(themeslist[contador].color_pantalla);
 				redraw = true;
 			}
 		}
 
-		else if ((event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)) { // si se apreta la X de la ventana se cierra el programa
+
+		else if ((event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)) { // capta cuando el mouse toca la x de la pantalla
 			cerrar = true;
-		} else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-			if (event.keyboard.keycode == ALLEGRO_KEY_A
-					|| event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
+		}
+		
+		
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
 				key_left = true;
 			}
-			if (event.keyboard.keycode == ALLEGRO_KEY_D
-					|| event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+			if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
 				key_right = true;
 			}
 
-		} else if (event.type == ALLEGRO_EVENT_KEY_UP) {
-			if (event.keyboard.keycode == ALLEGRO_KEY_A
-					|| event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
+		}
+		
+		
+		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
+			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
 				key_left = false;
 			}
-			if (event.keyboard.keycode == ALLEGRO_KEY_D
-					|| event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+			if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
 				key_right = false;
 			}
-		} else if (event.type == ALLEGRO_EVENT_KEY_CHAR) { // Se fija si se toco alguna tecla
-			if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu
-					&& (ball1.vx == 0 && ball1.vy == 0) && !pausa
-					&& !menu_opciones) {
+		}
+		
+		
+		else if (event.type == ALLEGRO_EVENT_KEY_CHAR) { // se fija si se toca alguna tecla
+			if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && 
+					(ball1.vx == 0 && ball1.vy == 0) && !pausa && !menu_opciones) {
 				if (game_over) {
 					vidas = 3;
 					game_over = false;
@@ -796,8 +663,11 @@ int main() {
 				angulo = (rand() % 100) + 15;
 				ball1.vx = (float) ball1.dx * cos(DEGTORAD(angulo));
 				ball1.vy = -((float) ball1.dy * sin(DEGTORAD(angulo)));
-			} else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) { // Si se toca escape se pone en pausa
+			}
+			else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) { // si se toca escape se pone en pausa
 				if (game_over) {
+					
+					
 					vidas = 3;
 					pausa = false;
 					fuera_mainmenu = false;
@@ -812,85 +682,66 @@ int main() {
 					wider_timer = 0;
 					estado_bomba = false;
 					
-				} else if (!pausa) {
+				}
+				else if (!pausa) {
 					pausa = true;
-				} else {
+				}
+				else {
 					pausa = false;
 				}
-
 			}
 
-			// --- TRUCOS MODO DEMO ---
+			// MODO DEMO //
 			else if (fuera_mainmenu && modo_demo) {
-				// TECLA 1: Vida Extra
-				if (event.keyboard.keycode == ALLEGRO_KEY_1) {
+				if (event.keyboard.keycode == ALLEGRO_KEY_1) { // vida extra
 					vidas++;
 				}
-				// TECLA 2: Pasar de Nivel
-				if (event.keyboard.keycode == ALLEGRO_KEY_2) {
-					nivel_ganado = true; // ¡Esto es todo! El juego hará el resto.
-					al_play_sample(sonido_nivel, 1.0, 0.0, 1.0,
-							ALLEGRO_PLAYMODE_ONCE, NULL);
+				if (event.keyboard.keycode == ALLEGRO_KEY_2) { // pasar de nivel
+					nivel_ganado = true;
+					al_play_sample(sonido_nivel, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				}
-				// TECLA 3: Activar Super Romper (Toggle)
-				if (event.keyboard.keycode == ALLEGRO_KEY_3) {
+				if (event.keyboard.keycode == ALLEGRO_KEY_3) { // super romper
 					super_romper = !super_romper;
 				}
 			}
-
-		} else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+			///////////////
+		}
+		
+		
+		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			if (!fuera_mainmenu && !menu_opciones) {
-				if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_menu[0].bounding.ulx,
-						matriz_menu[0].bounding.uly,
-						matriz_menu[0].bounding.drx,
-						matriz_menu[0].bounding.dry)) {
+				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[0].bounding.ulx,
+						matriz_menu[0].bounding.uly, matriz_menu[0].bounding.drx, matriz_menu[0].bounding.dry)) {
 					fuera_mainmenu = true;
 					for (int i = 0; i < ALTO; i++) {
 						for (int j = 0; j < ANCHO; j++) {
 							mat[i][j].bounding.ulx = i * (float) disAncho/ANCHO;
 							mat[i][j].bounding.uly = j * lado;
-							mat[i][j].bounding.drx = i * (float) disAncho
-									/ ANCHO + disAlto / ALTO;
-							mat[i][j].bounding.dry =
-									j * lado + disAncho / ANCHO;
-							mat[i][j].bounding = set_bounding(
-									j * (float) disAncho / ANCHO,
-									(i * lado) + 3 * lado,
-									j * (float) disAncho / ANCHO
-											+ (float) disAncho / ANCHO,
-									i * lado + 4 * lado);
+							mat[i][j].bounding.drx = i * (float) disAncho / ANCHO + disAlto / ALTO;
+							mat[i][j].bounding.dry = j * lado + disAncho / ANCHO;
+							mat[i][j].bounding = set_bounding( j * (float) disAncho / ANCHO, (i * lado) + 3 * lado,
+									j * (float) disAncho / ANCHO + (float) disAncho / ANCHO, i * lado + 4 * lado);
 						}
 					}
 					llenar_mat(mat, 0);
-
-				} else if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_menu[1].bounding.ulx,
-						matriz_menu[1].bounding.uly,
-						matriz_menu[1].bounding.drx,
-						matriz_menu[1].bounding.dry)) {
+				} 
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[1].bounding.ulx,
+						matriz_menu[1].bounding.uly, matriz_menu[1].bounding.drx, matriz_menu[1].bounding.dry)) {
 					menu_opciones = true;
-				} else if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_menu[2].bounding.ulx,
-						matriz_menu[2].bounding.uly,
-						matriz_menu[2].bounding.drx,
-						matriz_menu[2].bounding.dry)) {
+				}
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[2].bounding.ulx,
+						matriz_menu[2].bounding.uly, matriz_menu[2].bounding.drx, matriz_menu[2].bounding.dry)) {
 					cerrar = true;
 				}
 			}
-
 			else if (pausa) {
-				if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_pausa[0].bounding.ulx,
-						matriz_pausa[0].bounding.uly,
-						matriz_pausa[0].bounding.drx,
-						matriz_pausa[0].bounding.dry)) {
+				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[0].bounding.ulx,
+						matriz_pausa[0].bounding.uly, matriz_pausa[0].bounding.drx, matriz_pausa[0].bounding.dry)) {
 					pausa = false;
-				} else if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_pausa[1].bounding.ulx,
-						matriz_pausa[1].bounding.uly,
-						matriz_pausa[1].bounding.drx,
-						matriz_pausa[1].bounding.dry)) {
+				}
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[1].bounding.ulx,
+						matriz_pausa[1].bounding.uly, matriz_pausa[1].bounding.drx, matriz_pausa[1].bounding.dry)) {
+					
 					
 					pausa = false;
 					vidas = 3;
@@ -904,39 +755,20 @@ int main() {
 					wider_timer = 0;
 					estado_bomba = false;
 					
-
-
-
-
-
+					
 					ball1.vx = 0;
 					ball1.vy = 0;
 					ball1.x = (float) disAncho / 2;
-					ball1.y = disAlto
-							- ((disAlto - ((float) disAlto * 0.90))
-									+ (6 * anchorect) / 32);
+					ball1.y = disAlto - ((disAlto - ((float) disAlto * 0.90)) + (6 * anchorect) / 32);
 					ball1.dx = 5;
 					ball1.dy = 5;
+					ball1.bounding = set_bounding(ball1.x - radio, (ball1.y - radio), ball1.x + radio, (ball1.y + radio));
+					platform.bounding = set_bounding(((float) disAncho / 2) - 2.5 * anchoplat, disAlto - (disAlto - ((float) disAlto * 0.90)),
+							((float) disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float) disAlto * 0.90)	- 16));
+				}
+				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[2].bounding.ulx,
+						matriz_pausa[2].bounding.uly, matriz_pausa[2].bounding.drx, matriz_pausa[2].bounding.dry)) {
 
-					ball1.bounding = set_bounding(ball1.x - radio,
-							(ball1.y - radio), ball1.x + radio,
-							(ball1.y + radio));
-					platform.bounding =
-							set_bounding(
-									((float) disAncho / 2) - 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)),
-									((float) disAncho / 2) + 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)
-													- 16));
-				} else if (collide(event.mouse.x, event.mouse.y, event.mouse.x,
-						event.mouse.y, matriz_pausa[2].bounding.ulx,
-						matriz_pausa[2].bounding.uly,
-						matriz_pausa[2].bounding.drx,
-						matriz_pausa[2].bounding.dry)) {
 
 					vidas = 3;
 					pausa = false;
@@ -1034,6 +866,7 @@ int main() {
 				}
 			}
 		}
+
 
 		else if (event.type == ALLEGRO_EVENT_MOUSE_AXES && event.mouse.dz != 0
 				&& !fuera_mainmenu) { // Detecta si se movio la rueda del boton y si esta en el menu
