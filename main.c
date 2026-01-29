@@ -691,10 +691,10 @@ int main() {
 					estado_bomba = false;
 					
 				}
-				else if (!pausa) { // si no esta en pausa se pone en pausa
+				else if (!pausa) {
 					pausa = true;
 				}
-				else { // si esta en pausa se saca la pausa
+				else {
 					pausa = false;
 				}
 			}
@@ -716,8 +716,8 @@ int main() {
 		}
 		
 		
-		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) { // evento de cuando se clickea
-			if (!fuera_mainmenu && !menu_opciones) {
+		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) { // se fija si se toca el boton del mouse
+			if (!fuera_mainmenu && !menu_opciones) { // el jugador esta en el menu principal
 				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_menu[0].bounding.ulx,
 						matriz_menu[0].bounding.uly, matriz_menu[0].bounding.drx, matriz_menu[0].bounding.dry)) { // si clickea en "JUGAR"
 					fuera_mainmenu = true;
@@ -742,7 +742,7 @@ int main() {
 					cerrar = true;
 				}
 			}
-			else if (pausa) { // si esta en pausa
+			else if (pausa) {
 				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[0].bounding.ulx, // si clickea en "REANUDAR"
 						matriz_pausa[0].bounding.uly, matriz_pausa[0].bounding.drx, matriz_pausa[0].bounding.dry)) {
 					pausa = false;
@@ -750,7 +750,7 @@ int main() {
 				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[1].bounding.ulx, // si clickea en "REINICIAR"
 						matriz_pausa[1].bounding.uly, matriz_pausa[1].bounding.drx, matriz_pausa[1].bounding.dry)) {
 					
-					// Se vuelve todo al estado inicial de cuando se inicia el programa
+					// se vuelve al estado inicial
 					pausa = false;
 					vidas = 3;
 					puntaje = 0;
@@ -762,8 +762,6 @@ int main() {
 					}
 					wider_timer = 0;
 					estado_bomba = false;
-					
-					
 					ball1.vx = 0;
 					ball1.vy = 0;
 					ball1.x = (float) disAncho / 2;
@@ -777,10 +775,9 @@ int main() {
 				else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y, matriz_pausa[2].bounding.ulx,
 						matriz_pausa[2].bounding.uly, matriz_pausa[2].bounding.drx, matriz_pausa[2].bounding.dry)) { // si clickea en "VOLVER A MENU"
 
-					// hace lo mismo que en el if anterior pero tambien activa para que vuelva al menu principal
+					// se vuelve al estado inicial y se habilita la variable del menu principal
 					vidas = 3;
 					pausa = false;
-					fuera_mainmenu = false;
 					nivel = 0;
 					llenar_mat(mat, nivel);
 					animacion_go_hecha = false;
@@ -789,77 +786,68 @@ int main() {
 					}
 					wider_timer = 0;
 					estado_bomba = false;
-					
-
 					ball1.vx = 0;
 					ball1.vy = 0;
 					ball1.x = (float) disAncho / 2;
-					ball1.y = disAlto
-							- ((disAlto - ((float) disAlto * 0.90))
-									+ (6 * anchorect) / 32);
-					ball1.bounding = set_bounding(ball1.x - radio,
-							(ball1.y - radio), ball1.x + radio,
-							(ball1.y + radio));
-					platform.bounding =
-							set_bounding(
-									((float) disAncho / 2) - 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)),
-									((float) disAncho / 2) + 2.5 * anchoplat,
-									disAlto
-											- (disAlto
-													- ((float) disAlto * 0.90)
-													- 16));
-
+					ball1.y = disAlto - ((disAlto - ((float) disAlto * 0.90)) + (6 * anchorect) / 32);
+					ball1.bounding = set_bounding(ball1.x - radio, (ball1.y - radio), ball1.x + radio, (ball1.y + radio));
+					platform.bounding = set_bounding(((float) disAncho / 2) - 2.5 * anchoplat, disAlto - (disAlto - ((float) disAlto * 0.90)), 
+							((float) disAncho / 2) + 2.5 * anchoplat, disAlto - (disAlto - ((float) disAlto * 0.90) - 16));
+					fuera_mainmenu = false;
 				}
-			} else if (menu_opciones) {
-				// ZONA TEMA (Altura Y entre 200 y 260)
+			}
+			else if (menu_opciones) {
+				// zona de temas
 				if (event.mouse.y > 200 && event.mouse.y < 260) {
 					// Click a la izquierda (Flecha <)
 					if (event.mouse.x < disAncho / 2) {
-						if (contador == 0)
+						if (contador == 0) {
 							contador = 2;
-						else
+						}
+						else {
 							contador--;
+						}
 					}
 					// Click a la derecha (Flecha >)
 					else {
-						if (contador == 2)
+						if (contador == 2) {
 							contador = 0;
-						else
+						}
+						else {
 							contador++;
+						}
 					}
 				}
-				// ZONA VELOCIDAD (Altura Y entre 320 y 380)
+				// zona de velocidad
 				if (event.mouse.y > 320 && event.mouse.y < 380) {
 					// Click a la izquierda (Menos velocidad)
 					if (event.mouse.x < disAncho / 2) {
-						if (ball1.dx > 4.0)
+						if (ball1.dx > 4.0) {
 							ball1.dx -= 1.0;
+						}
 					}
 					// Click a la derecha (Mas velocidad)
 					else {
-						if (ball1.dx < 10.0)
+						if (ball1.dx < 10.0) {
 							ball1.dx += 1.0;
+						}
 					}
 				}
 
-				// ZONA MODO DEMO (Altura Y entre 440 y 500)
+				// zona de modo demo
 				if (event.mouse.y > 440 && event.mouse.y < 500) {
 					// Click en todo el ancho central
-					if (event.mouse.x > disAncho / 2 - 250
-							&& event.mouse.x < disAncho / 2 + 250) {
+					if (event.mouse.x > disAncho / 2 - 250 && event.mouse.x < disAncho / 2 + 250) {
 						modo_demo = !modo_demo;
-						if (!modo_demo)
+						if (!modo_demo) {
 							super_romper = false;
+						}
 					}
 				}
 
-				//  ZONA BOTON ATRAS (Altura Y entre 580 y 630)
+				//  zona del boton "ATRAS"
 				if (event.mouse.y > 580 && event.mouse.y < 630) {
-					if (event.mouse.x > disAncho / 2 - 100
-							&& event.mouse.x < disAncho / 2 + 100) {
+					if (event.mouse.x > disAncho / 2 - 100 && event.mouse.x < disAncho / 2 + 100) {
 						menu_opciones = false;
 					}
 				}
@@ -867,16 +855,15 @@ int main() {
 		}
 
 
-		else if (event.type == ALLEGRO_EVENT_MOUSE_AXES && event.mouse.dz != 0
-				&& !fuera_mainmenu) { // Detecta si se movio la rueda del boton y si esta en el menu
+		else if (event.type == ALLEGRO_EVENT_MOUSE_AXES && event.mouse.dz != 0 && !fuera_mainmenu) { // se fija si se movio la rueda del mouse y si esta en el menu
 			if (event.mouse.dz > 0) { // Se fija que el cambio del mouse scroll sea para arriba
-				disAlto += 10; // aumenta alto del display
-				disAncho += 10; // aumenta ancho del display
+				disAlto += 10;
+				disAncho += 10;
 				redraw = true;
-			} else if (event.mouse.dz < 0) // Se fija que el cambio del mouse scroll sea para abajo
-					{
-				disAlto -= 10; // decrementa alto del display
-				disAncho -= 10; // decrementa ancho del display
+			}
+			else if (event.mouse.dz < 0) { // Se fija que el cambio del mouse scroll sea para abajo	
+				disAlto -= 10;
+				disAncho -= 10;
 				redraw = true;
 			}
 			if (disAlto < 720) { // impide que el display sea muy pequeño para que las letras entren
@@ -888,231 +875,140 @@ int main() {
 			al_resize_display(disp, disAncho, disAlto); // Cambia tamaño de pantalla
 			al_clear_to_color(themeslist[contador].color_pantalla); // limpia la pantalla para que no se escriba texto por encima
 		}
-
 		if (redraw && al_is_event_queue_empty(queue)) { // si esta para redibujar
 
-			// Limpieza general por seguridad
-			al_clear_to_color(themeslist[contador].color_pantalla);
+			al_clear_to_color(themeslist[contador].color_pantalla); // limpieza general por seguridad
 
 			if (fuera_mainmenu && !menu_opciones) { // si no esta en el menu principal ni en el menu opciones
 
-				if (en_transicion) {
-					//  DIBUJAR TRANSICION GALAGA 
+				if (en_transicion) { // dibuja transicion galaga 
 					al_clear_to_color(al_map_rgb(0, 0, 0)); // Fondo negro
 
 					for (int i = 0; i < MAX_STARS; i++) {
-						al_draw_filled_rectangle(stars[i].x, stars[i].y,
-								stars[i].x + stars[i].tamano,
-								stars[i].y + stars[i].tamano,
-								al_map_rgb(255, 255, 255));
+						al_draw_filled_rectangle(stars[i].x, stars[i].y, stars[i].x + stars[i].tamano,
+								stars[i].y + stars[i].tamano, al_map_rgb(255, 255, 255));
 					}
-
-					// Texto Parpadeante
-					if (frames_transicion % 40 < 30) { 
-						al_draw_textf(gameoverfont, al_map_rgb(0, 255, 255),
-								disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
+					if (frames_transicion % 40 < 30) { // texto parpadeante
+						al_draw_textf(gameoverfont, al_map_rgb(0, 255, 255), disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
 								"STAGE %d", nivel + 1);
-						al_draw_text(font, al_map_rgb(255, 0, 0), disAncho / 2,
-								disAlto / 2 + 40, ALLEGRO_ALIGN_CENTER,
-								"READY");
+						al_draw_text(font, al_map_rgb(255, 0, 0), disAncho / 2, disAlto / 2 + 40, ALLEGRO_ALIGN_CENTER, "READY");
 					}
-
-					
 					al_flip_display();
 					redraw = false;
-					
-
-				} else {
-					// DIBUJAR JUEGO NORMAL 
+				}
+				else { // dibuja el juego normal
 					al_clear_to_color(themeslist[contador].color_pantalla);
 
 					if (wider_timer >= 300 && !bloq_tit) {
-						dibujar_all(disAlto, disAncho, lado,
-								al_map_rgb(255, 0, 0), platform.bounding, ball1,
-								mat, themeslist[contador].color_pantalla,
-								imagen_bomba, estado_bomba);
+						dibujar_all(disAlto, disAncho, lado, al_map_rgb(255, 0, 0), platform.bounding, ball1,
+								mat, themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
 						titileo++;
 						if (titileo == 20) {
 							bloq_tit = true;
 						}
-					} else {
-						dibujar_all(disAlto, disAncho, lado,
-								themeslist[contador].color_lineas,
-								platform.bounding, ball1, mat,
-								themeslist[contador].color_pantalla,
-								imagen_bomba, estado_bomba);
-						if (titileo >= 0) { // para evitar que la variable tome valores negativos. tarda mas ciclos en titilar
+					}
+					else {
+						dibujar_all(disAlto, disAncho, lado, themeslist[contador].color_lineas, platform.bounding, ball1, mat,
+								themeslist[contador].color_pantalla, imagen_bomba, estado_bomba);
+						if (titileo >= 0) { // para evitar que la variable tome valores negativos
 							titileo--;
 							if (titileo == 0) {
 								bloq_tit = false;
 							}
 						}
 					}
-
 					dibujar_powerups(powerups_mat);
 
-					// (Borré la linea duplicada de dibujar_all que tenías)
-
 					if (pausa) {
-						// Tu logica de pausa...
-						al_draw_text(gameoverfont,
-								themeslist[contador].color_texto, disAncho / 2,
-								matriz_menu[0].bounding.dry
-										- (matriz_menu[0].bounding.dry
-												- matriz_menu[0].bounding.uly)
-												* 0.75, ALLEGRO_ALIGN_CENTER,
-								matriz_pausa[0].texto);
-						al_draw_text(gameoverfont,
-								themeslist[contador].color_texto, disAncho / 2,
-								matriz_menu[1].bounding.dry
-										- (matriz_menu[1].bounding.dry
-												- matriz_menu[1].bounding.uly)
-												* 0.75, ALLEGRO_ALIGN_CENTER,
-								matriz_pausa[1].texto);
-						al_draw_text(gameoverfont,
-								themeslist[contador].color_texto, disAncho / 2,
-								matriz_menu[2].bounding.dry
-										- (matriz_menu[2].bounding.dry
-												- matriz_menu[2].bounding.uly)
-												* 0.75, ALLEGRO_ALIGN_CENTER,
-								matriz_pausa[2].texto);
+						al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+								matriz_menu[0].bounding.dry - (matriz_menu[0].bounding.dry - matriz_menu[0].bounding.uly) * 0.75,
+								ALLEGRO_ALIGN_CENTER, matriz_pausa[0].texto);
+						al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+								matriz_menu[1].bounding.dry - (matriz_menu[1].bounding.dry - matriz_menu[1].bounding.uly) * 0.75,
+								ALLEGRO_ALIGN_CENTER, matriz_pausa[1].texto);
+						al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+								matriz_menu[2].bounding.dry - (matriz_menu[2].bounding.dry - matriz_menu[2].bounding.uly) * 0.75,
+								ALLEGRO_ALIGN_CENTER, matriz_pausa[2].texto);
 					}
 
-					if (game_over) {
-						// DIBUJO DE PANTALLA GAME OVER 
+					if (game_over) { 
 
-						// Un recuadro negro semitransparente de fondo (opcional, para que se lea mejor)
-						al_draw_filled_rectangle(0, disAlto / 3, disAncho,
-								disAlto * 2 / 3, al_map_rgba(0, 0, 0, 200));
+						// recuadro negro semitransparente de fondo
+						al_draw_filled_rectangle(0, disAlto / 3, disAncho, disAlto * 2 / 3, al_map_rgba(0, 0, 0, 200));
 
 						// Titulo GAME OVER en Rojo
-						al_draw_text(gameoverfont, al_map_rgb(255, 0, 0),
-								disAncho / 2, disAlto / 2 - 50,
+						al_draw_text(gameoverfont, al_map_rgb(255, 0, 0), disAncho / 2, disAlto / 2 - 50,
 								ALLEGRO_ALIGN_CENTER, "GAME OVER");
 
-						// El PUNTAJE 
-						al_draw_textf(gameoverfont, al_map_rgb(255, 255, 255),
-								disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
+						// PUNTAJE 
+						al_draw_textf(gameoverfont, al_map_rgb(255, 255, 255), disAncho / 2, disAlto / 2, ALLEGRO_ALIGN_CENTER,
 								"PUNTAJE FINAL: %d", puntaje);
 
-						// Instrucciones (Más pequeñas abajo)
-						al_draw_text(gameoverfont, al_map_rgb(255, 255, 0),
-								disAncho / 2, disAlto / 2 + 60,
-								ALLEGRO_ALIGN_CENTER,
+						// instrucciones
+						al_draw_text(gameoverfont, al_map_rgb(255, 255, 0), disAncho / 2, disAlto / 2 + 60, ALLEGRO_ALIGN_CENTER,
 								"[ESPACIO] Reiniciar    -    [ESC] Menu Principal");
-
-
 					}
 
 					// HUD
-					al_draw_text(gameoverfont, galaga_red, 10, disAlto - 30,
-							ALLEGRO_ALIGN_LEFT, "LIVES");
+					al_draw_text(gameoverfont, galaga_red, 10, disAlto - 30, ALLEGRO_ALIGN_LEFT, "LIVES");
 					for (int i = 0; i < vidas; i++) {
 						float bx = 100 + (i * 25);
 						float by = disAlto - 5;
-						al_draw_filled_triangle(bx, by, bx + 8, by - 15,
-								bx + 16, by, galaga_yellow);
+						al_draw_filled_triangle(bx, by, bx + 8, by - 15, bx + 16, by, galaga_yellow);
 					}
-					al_draw_text(gameoverfont, galaga_red, disAncho / 2, 5,
-							ALLEGRO_ALIGN_CENTER, "SCORE");
-					al_draw_textf(gameoverfont, galaga_white, disAncho / 2, 30,
-							ALLEGRO_ALIGN_CENTER, "%d", puntaje);
-
+					al_draw_text(gameoverfont, galaga_red, disAncho / 2, 5, ALLEGRO_ALIGN_CENTER, "SCORE");
+					al_draw_textf(gameoverfont, galaga_white, disAncho / 2, 30, ALLEGRO_ALIGN_CENTER, "%d", puntaje);
 					if (modo_demo) {
-						al_draw_text(font, al_map_rgb(255, 255, 0),
-								disAncho / 2, 60, ALLEGRO_ALIGN_CENTER,
-								"--- MODO DEMO ---");
-						al_draw_text(font, al_map_rgb(255, 255, 0),
-								disAncho / 2, 80, ALLEGRO_ALIGN_CENTER,
-								"1:Vida | 2:Nivel | 3:InstaKill");
-
+						al_draw_text(font, al_map_rgb(255, 255, 0), disAncho / 2, 60, ALLEGRO_ALIGN_CENTER, "--- MODO DEMO ---");
+						al_draw_text(font, al_map_rgb(255, 255, 0), disAncho / 2, 80, ALLEGRO_ALIGN_CENTER, "1:Vida | 2:Nivel | 3:InstaKill");
 						if (super_romper) {
-							al_draw_text(gameoverfont, al_map_rgb(255, 0, 0),
-									disAncho / 2, disAlto / 2 + 50,
-									ALLEGRO_ALIGN_CENTER, "!! INSTA KILL !!");
+							al_draw_text(gameoverfont, al_map_rgb(255, 0, 0), disAncho / 2, disAlto / 2 + 50,
+									ALLEGRO_ALIGN_CENTER, "!! SUPER KILL !!");
 						}
 					}
-
-					// MOSTRAR PANTALLA JUEGO NORMAL
 					al_flip_display();
 					redraw = false;
 				}
 
-			} else if (!fuera_mainmenu) { // MENU PRINCIPAL
-				al_draw_text(gameoverfont, galaga_yellow, disAncho / 2, 100,
-						ALLEGRO_ALIGN_CENTER, "BREAKOUT 8-BIT");
+			}
+			else if (!fuera_mainmenu) { // menu principal
+				al_draw_text(gameoverfont, galaga_yellow, disAncho / 2, 100, ALLEGRO_ALIGN_CENTER, "BREAKOUT 8-BIT");
 				if (menu_opciones) {
-					// OPCIONES
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 200, ALLEGRO_ALIGN_CENTER, "TEMA:");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 - 160, 230, ALLEGRO_ALIGN_CENTER, "<");
 					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2, 200, ALLEGRO_ALIGN_CENTER, "TEMA:");
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 - 160, 230, ALLEGRO_ALIGN_CENTER, "<");
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2, 230, ALLEGRO_ALIGN_CENTER,
-							themeslist[contador].nombre);
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 + 160, 230, ALLEGRO_ALIGN_CENTER, ">");
-
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2, 320, ALLEGRO_ALIGN_CENTER,
-							"VELOCIDAD:");
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 - 160, 350, ALLEGRO_ALIGN_CENTER, "<");
-					al_draw_textf(gameoverfont,
-							themeslist[contador].color_texto, disAncho / 2, 350,
+							disAncho / 2, 230, ALLEGRO_ALIGN_CENTER, themeslist[contador].nombre);
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 + 160, 230, ALLEGRO_ALIGN_CENTER, ">");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 320, ALLEGRO_ALIGN_CENTER, "VELOCIDAD:");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 - 160, 350, ALLEGRO_ALIGN_CENTER, "<");
+					al_draw_textf(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 350,
 							ALLEGRO_ALIGN_CENTER, "%.1f", ball1.dx);
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 + 160, 350, ALLEGRO_ALIGN_CENTER, ">");
-
-					ALLEGRO_COLOR color_demo =
-							modo_demo ?
-									al_map_rgb(0, 255, 0) :
-									al_map_rgb(255, 0, 0);
-
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2, 440, ALLEGRO_ALIGN_CENTER,
-							"MODO DEMO:");
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 - 160, 470, ALLEGRO_ALIGN_CENTER, "<");
-					al_draw_text(gameoverfont, color_demo, disAncho / 2, 470,
-							ALLEGRO_ALIGN_CENTER,
-							modo_demo ? "ACTIVADO" : "DESACTIVADO");
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2 + 160, 470, ALLEGRO_ALIGN_CENTER, ">");
-
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2, 600, ALLEGRO_ALIGN_CENTER, "ATRAS");
-
-				} else {
-					// BOTONES MENU PRINCIPAL
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2,
-							matriz_menu[0].bounding.dry
-									- (matriz_menu[0].bounding.dry
-											- matriz_menu[0].bounding.uly)
-											* 0.75, ALLEGRO_ALIGN_CENTER,
-							matriz_menu[0].texto);
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2,
-							matriz_menu[1].bounding.dry
-									- (matriz_menu[1].bounding.dry
-											- matriz_menu[1].bounding.uly)
-											* 0.75, ALLEGRO_ALIGN_CENTER,
-							matriz_menu[1].texto);
-					al_draw_text(gameoverfont, themeslist[contador].color_texto,
-							disAncho / 2,
-							matriz_menu[2].bounding.dry
-									- (matriz_menu[2].bounding.dry
-											- matriz_menu[2].bounding.uly)
-											* 0.75, ALLEGRO_ALIGN_CENTER,
-							matriz_menu[2].texto);
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 + 160, 350, ALLEGRO_ALIGN_CENTER, ">");
+					ALLEGRO_COLOR color_demo = modo_demo ? al_map_rgb(0, 255, 0) : al_map_rgb(255, 0, 0);
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 440, ALLEGRO_ALIGN_CENTER, "MODO DEMO:");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 - 160, 470, ALLEGRO_ALIGN_CENTER, "<");
+					al_draw_text(gameoverfont, color_demo, disAncho / 2, 470, ALLEGRO_ALIGN_CENTER, modo_demo ? "ACTIVADO" : "DESACTIVADO");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 + 160, 470, ALLEGRO_ALIGN_CENTER, ">");
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 600, ALLEGRO_ALIGN_CENTER, "ATRAS");
+				}
+				else { // botones del menu principal
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+							matriz_menu[0].bounding.dry - (matriz_menu[0].bounding.dry - matriz_menu[0].bounding.uly) * 0.75,
+							ALLEGRO_ALIGN_CENTER, matriz_menu[0].texto);
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+							matriz_menu[1].bounding.dry - (matriz_menu[1].bounding.dry - matriz_menu[1].bounding.uly) * 0.75,
+							ALLEGRO_ALIGN_CENTER, matriz_menu[1].texto);
+					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
+							matriz_menu[2].bounding.dry - (matriz_menu[2].bounding.dry - matriz_menu[2].bounding.uly) * 0.75,
+							ALLEGRO_ALIGN_CENTER, matriz_menu[2].texto);
 				}
 				al_flip_display();
 				redraw = false;
 			}
 		}
 	}
-// Destruye todo lo que se uso de allegro
+	
+	// Destruye todo lo que se uso de allegro
 	printf("Destruyendo la fuente...\n");
 	al_destroy_font(font);
 	printf("Destruyendo el sonido...\n");
@@ -1122,8 +1018,8 @@ int main() {
 	printf("Destruyendo los eventos...\n");
 	al_destroy_event_queue(queue);
 	printf("Destruyendo la musica...\n");
-	printf("Destruyendo imagen...\n");
 	al_destroy_bitmap(imagen_bomba);
+	printf("Destruyendo imagen...\n");
 	al_destroy_sample(sonido_nave);
 	al_destroy_sample(sonido_choque);
 	al_destroy_sample(sonido_explosion);
