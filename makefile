@@ -1,20 +1,25 @@
-CC := gcc
-CFLAGS := -Wall
-# Agregamos todas las librerías necesarias de Allegro
-AFLAGS := -lallegro -lallegro_image -lallegro_font -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_acodec -lallegro_dialog -lallegro_color -lallegro_physfs -lallegro_video -lm
-OBJS := main.o funciones.o niveles.o
+# --- VARIABLES ---
+CC = gcc
+CFLAGS = -Wall
 
-juego: $(OBJS)
-	$(CC) $(OBJS) -o juego $(AFLAGS)
+# Librerías para PC (Allegro)
+LIBS_PC = -lallegro -lallegro_image -lallegro_font -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_acodec -lallegro_dialog -lallegro_color -lallegro_physfs -lallegro_video -lm
 
-main.o: main.c funciones.h
-	$(CC) $(CFLAGS) -c main.c
+# --- OBJETIVOS ---
 
-funciones.o: funciones.c funciones.h
-	$(CC) $(CFLAGS) -c funciones.c
+all: pc raspi
 
-niveles.o: niveles.c funciones.h
-	$(CC) $(CFLAGS) -c niveles.c
-	
+# 1. VERSIÓN PC
+pc: main.c funciones.c niveles.c funciones.h
+	@echo "Compilando version PC..."
+	$(CC) $(CFLAGS) main.c funciones.c niveles.c -o juego_pc $(LIBS_PC)
+
+# 2. VERSIÓN RASPI (CORREGIDA)
+# Esta regla dice: "Necesito que existan disdrv.o y joydrv.o, pero NO se como fabricarlos, asi que espero que ya esten ahi"
+raspi: probandocosas.c disdrv.o joydrv.o
+	@echo "Compilando version Raspi..."
+	$(CC) $(CFLAGS) probandocosas.c disdrv.o joydrv.o -o juego_rpi
+
+# Limpieza
 clean:
-	rm -f *.o juego
+	rm -f juego_pc juego_rpi

@@ -95,12 +95,12 @@ int main() {
 	int bloques_vivos = 0; // indicara la cantidad de bloques vivos
 	int wider_timer = 0; 
 	int titileo = 0;
-	int radio_explo = 1;
-	char vidas = 3;
+	int radio_explo = 1; // sirve para calcular el radio de explosion del poder bomba
+	char vidas = 3; // cuantas vida tiene el usuario
 
 	// variables galaga //
-	Star stars[MAX_STARS];
-	bool en_transicion = false;
+	Star stars[MAX_STARS]; // cantidad estrellas
+	bool en_transicion = false; // indica si esta en transicion
 	int frames_transicion = 0;
 	init_stars(stars, disAncho, disAlto);
 
@@ -113,12 +113,12 @@ int main() {
 	entities platform;
 	entities ball1;
 
-	platform.dx = 5;
-	platform.dy = 0;
-	ball1.dx = 5;
-	ball1.dy = 5;
-	ball1.vx = 0;
-	ball1.vy = 0;
+	platform.dx = 5; // rapidez de la plataforma en x
+	platform.dy = 0; // rapidez de la plataforma en y
+	ball1.dx = 5; // rapidez de la pelota en x
+	ball1.dy = 5; // rapidez de la pelota en y
+	ball1.vx = 0; // velocidad de la pelota en x
+	ball1.vy = 0; // velocidad de la pelota en y
 
 	matriz_menu[0].texto = "JUGAR";
 	matriz_menu[1].texto = "OPCIONES";
@@ -178,7 +178,7 @@ int main() {
 
 		// MENU PRINCIPAL //
 		if (!fuera_mainmenu && !ball1.vx && !ball1.vy) {
-			lado = (disAlto / 2) / ALTO; // cuanto mide los lados verticales de las casillas
+			lado = (disAlto / 2) / ALTO; 
 			radio = ((2.5 * (float) disAncho) / 255);
 			anchorect = (float) disAncho / ANCHO;
 			anchoplat = (float) disAncho / 22;
@@ -192,8 +192,10 @@ int main() {
 					((float) disAncho / 2) - 2.5 * anchoplat,
 					disAlto - (disAlto - ((float) disAlto * 0.9)),
 					((float) disAncho / 2) + 2.5 * anchoplat,
-					disAlto - (disAlto - ((float) disAlto * 0.895) - 16)); // 2.5 COEFICIENTE DE TAMAÑO
+					disAlto - (disAlto - ((float) disAlto * 0.895) - 16)); 
 
+
+			// bouding de algunos lugares para clickear
 			matriz_menu[0].bounding = set_bounding(0.3333 * disAncho,
 					disAlto / 3 + lado * 2, disAncho - (disAncho / 3),
 					disAlto / 3 + lado * 4);
@@ -235,7 +237,7 @@ int main() {
 		/////////////////////////////////////////////////////////////////////////////////
 		al_wait_for_event(queue, &event); // indica al programa que revise si hay eventos
 		
-		if (event.type == ALLEGRO_EVENT_TIMER) {
+		if (event.type == ALLEGRO_EVENT_TIMER){
 			if (en_transicion) { // pantalla animada entre niveles
 				frames_transicion++;
 				for (int i = 0; i < MAX_STARS; i++) {
@@ -267,13 +269,14 @@ int main() {
 						}
 					}
 				}
-				else if (menu_opciones) {
-					for (int i = 4; i <= 8; i++) {
+				else if (menu_opciones) { // 
+					for (int i = 4; i < 7; i++) {
 						if (collide(mouse.x, mouse.y, mouse.x, mouse.y,
-								matriz_menu[i].bounding.ulx,
-								matriz_menu[i].bounding.uly,
-								matriz_menu[i].bounding.drx,
-								matriz_menu[i].bounding.dry)) {
+								disAncho / 2 - 160 - 30,
+								200+(i-4)*120,
+								disAncho / 2 - 160 + 30,
+								260+(i-4)*120) ||collide(mouse.x, mouse.y, mouse.x, mouse.y,disAncho / 2 + 160 - 30,200+(i-4)*120,disAncho / 2 + 160 +30,260+(i-4)*120) ||
+								collide(mouse.x, mouse.y, mouse.x, mouse.y,disAncho/2-100 ,600-40,disAncho/2+100,600+40) ) {
 							al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
 							break;
 						}
@@ -402,7 +405,7 @@ int main() {
 											}
 										}
 									}
-									else if (estado_bomba) {
+									else if (estado_bomba) { // en caso de que este en modo bomba explota
 										for (int di = -radio_explo; di <= radio_explo; di++) {
 											for (int dj = -radio_explo; dj <= radio_explo; dj++) {
 												int ni = i + di;
@@ -429,7 +432,7 @@ int main() {
 									colisiono = true;
 								}
 							}
-							else if (collision_wb == 1) {
+							else if (collision_wb == 1) { // en caso de que este en modo bomba explota
 								if (mat[i][j].cant_impactos_actual >= 1) {
 									if (modo_demo && super_romper) {
 										for (int di = -radio_explo; di <= radio_explo; di++) {
@@ -516,7 +519,8 @@ int main() {
 							// BLOQUE DE APARICION DE POWERUPS //
 							if (mat[i][j].cant_impactos_actual < 1 && mat[i][j].estado) {
 								mat[i][j].estado = false;
-								for (int k = 0; k < 3; k++) {
+								int k;
+								for (k = ((vidas == 5) ? 1 : 0); k < 3; k++) {
 									// nota: solo puede haber un powerup del mismo tipo activo
 									if (!(dice = rand() % 15) && powerups_mat[k].state == POWERUP_INACTIVE) {
 										powerups_mat[k].state = POWERUP_FALLING;
@@ -586,7 +590,8 @@ int main() {
 					}
 
 					if (powerups_mat[0].state == POWERUP_ACTIVE) { // powerup de vida extra
-						vidas++;
+						if (vidas < 5)
+							vidas++;
 						al_play_sample(sonido_vida, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 						powerups_mat[0].state = POWERUP_INACTIVE;
 					}
@@ -632,7 +637,7 @@ int main() {
 			cerrar = true;
 		}
 		
-		
+		// capta si se toca A,D <- o -> para mover la plataforma
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
 				key_left = true;
@@ -657,7 +662,7 @@ int main() {
 		else if (event.type == ALLEGRO_EVENT_KEY_CHAR) { // se fija si se toca alguna tecla
 			if (event.keyboard.keycode == ALLEGRO_KEY_SPACE && fuera_mainmenu && 
 					(ball1.vx == 0 && ball1.vy == 0) && !pausa && !menu_opciones) {
-				if (game_over) {
+				if (game_over) { // si esta en game over y se apreto espacio vuelve al estado del principio
 					vidas = 3;
 					game_over = false;
 					nivel = 0;
@@ -675,7 +680,7 @@ int main() {
 				ball1.vy = -((float) ball1.dy * sin(DEGTORAD(angulo)));
 			}
 			else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) { // si se toca escape se pone en pausa o vuelve al menu principal
-				if (game_over) { // si el usuario perdio vuelve al menu principal
+				if (game_over) { // si el usuario perdio vuelve al menu principal y reinicia todo a su estado original
 					vidas = 3;
 					pausa = false;
 					fuera_mainmenu = false;
@@ -798,9 +803,10 @@ int main() {
 			}
 			else if (menu_opciones) {
 				// zona de temas
+				
 				if (event.mouse.y > 200 && event.mouse.y < 260) {
 					// Click a la izquierda (Flecha <)
-					if (event.mouse.x < disAncho / 2) {
+					if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 - 160 - 30,200,disAncho / 2 - 160 +30,260)) {
 						if (contador == 0) {
 							contador = 2;
 						}
@@ -809,7 +815,7 @@ int main() {
 						}
 					}
 					// Click a la derecha (Flecha >)
-					else {
+					else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 + 160 - 30,200,disAncho / 2 + 160 +30,260)){
 						if (contador == 2) {
 							contador = 0;
 						}
@@ -821,13 +827,13 @@ int main() {
 				// zona de velocidad
 				if (event.mouse.y > 320 && event.mouse.y < 380) {
 					// Click a la izquierda (Menos velocidad)
-					if (event.mouse.x < disAncho / 2) {
+					if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 - 160 - 30,320,disAncho / 2 - 160 +30,380)) {
 						if (ball1.dx > 4.0) {
 							ball1.dx -= 1.0;
 						}
 					}
 					// Click a la derecha (Mas velocidad)
-					else {
+					else if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 + 160 - 30,320,disAncho / 2 + 160 +30,380)) {
 						if (ball1.dx < 10.0) {
 							ball1.dx += 1.0;
 						}
@@ -835,18 +841,16 @@ int main() {
 				}
 
 				// zona de modo demo
-				if (event.mouse.y > 440 && event.mouse.y < 500) {
-					// Click en todo el ancho central
-					if (event.mouse.x > disAncho / 2 - 250 && event.mouse.x < disAncho / 2 + 250) {
+				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 + 160 - 30,440,disAncho / 2 + 160 +30,500) || collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho / 2 - 160 - 30,440,disAncho / 2 - 160 +30,500)) {
+					// Click en todo el ancho central 
 						modo_demo = !modo_demo;
 						if (!modo_demo) {
 							super_romper = false;
 						}
-					}
 				}
 
 				//  zona del boton "ATRAS"
-				if (event.mouse.y > 580 && event.mouse.y < 630) {
+				if (collide(event.mouse.x, event.mouse.y, event.mouse.x, event.mouse.y,disAncho/2-100 ,600-40,disAncho/2+100,600+40)) {
 					if (event.mouse.x > disAncho / 2 - 100 && event.mouse.x < disAncho / 2 + 100) {
 						menu_opciones = false;
 					}
@@ -917,9 +921,9 @@ int main() {
 							}
 						}
 					}
-					dibujar_powerups(powerups_mat);
+					dibujar_powerups(powerups_mat); // dibuja los powerups
 
-					if (pausa) {
+					if (pausa) { // dibuja menu de pausa
 						al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2,
 								matriz_menu[0].bounding.dry - (matriz_menu[0].bounding.dry - matriz_menu[0].bounding.uly) * 0.75,
 								ALLEGRO_ALIGN_CENTER, matriz_pausa[0].texto);
@@ -931,7 +935,7 @@ int main() {
 								ALLEGRO_ALIGN_CENTER, matriz_pausa[2].texto);
 					}
 
-					if (game_over) { 
+					if (game_over) { // mensaje de game over
 
 						// recuadro negro semitransparente de fondo
 						al_draw_filled_rectangle(0, disAlto / 3, disAncho, disAlto * 2 / 3, al_map_rgba(0, 0, 0, 200));
@@ -973,7 +977,8 @@ int main() {
 			}
 			else if (!fuera_mainmenu) { // menu principal
 				al_draw_text(gameoverfont, galaga_yellow, disAncho / 2, 100, ALLEGRO_ALIGN_CENTER, "BREAKOUT 8-BIT");
-				if (menu_opciones) {
+				if (menu_opciones) { // botones del menu opciones
+
 					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2, 200, ALLEGRO_ALIGN_CENTER, "TEMA:");
 					al_draw_text(gameoverfont, themeslist[contador].color_texto, disAncho / 2 - 160, 230, ALLEGRO_ALIGN_CENTER, "<");
 					al_draw_text(gameoverfont, themeslist[contador].color_texto,
